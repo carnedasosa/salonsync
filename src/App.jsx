@@ -76,7 +76,7 @@ export default function App() {
                   serviceName: app.serviceName,
                   operatorName: app.operatorName,
                   price: app.price,
-                  notes: `Trattamento completato. Clicca sull'icona della fotocamera per caricare le foto Prima/Dopo. Scrivi qui la formula tecnica o altre note relative al trattamento.`,
+                  notes: `Trattamento completato. Scrivi qui la formula tecnica o altre note relative al trattamento.`,
                   beforePhoto: '',
                   afterPhoto: ''
                 };

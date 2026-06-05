@@ -41,9 +41,6 @@ export default function ClientCRM({
   const [treatNotes, setTreatNotes] = useState('');
   const [treatPrice, setTreatPrice] = useState('');
 
-  // Photo Upload Simulation State
-  const [uploadingRecordId, setUploadingRecordId] = useState(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
 
   // Get selected client object
   const client = clients.find(c => c.id === selectedClientId) || clients[0];
@@ -116,44 +113,6 @@ export default function ClientCRM({
     setTreatPrice('');
   };
 
-  // Simulate Before/After photo upload
-  const handleSimulatePhotoUpload = (recordId) => {
-    setUploadingRecordId(recordId);
-    setUploadProgress(0);
-
-    const interval = setInterval(() => {
-      setUploadProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setTimeout(() => {
-            // Assign mock photos when upload finishes
-            const mockPhotos = {
-              before: 'https://images.unsplash.com/photo-1519014816548-bf5fe059798b?auto=format&fit=crop&w=400&h=300&q=80',
-              after: 'https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=400&h=300&q=80'
-            };
-            
-            // Trigger state change in parent (simulated update)
-            const updatedHistory = client.treatmentHistory.map(rec => {
-              if (rec.id === recordId) {
-                return {
-                  ...rec,
-                  beforePhoto: mockPhotos.before,
-                  afterPhoto: mockPhotos.after
-                };
-              }
-              return rec;
-            });
-            
-            client.treatmentHistory = updatedHistory; // local mutating for mockup reactivity
-            setUploadingRecordId(null);
-            setUploadProgress(0);
-          }, 400);
-          return 100;
-        }
-        return prev + 20;
-      });
-    }, 150);
-  };
 
   return (
     <div className="crm-container animate-fade-in">
@@ -319,44 +278,7 @@ export default function ClientCRM({
                         <p className="formula-content">{rec.notes}</p>
                       </div>
 
-                      {/* Before / After Photo Gallery Row */}
-                      <div className="record-photos-area">
-                        {rec.beforePhoto || rec.afterPhoto ? (
-                          <div className="photos-row">
-                            {rec.beforePhoto && (
-                              <div className="photo-container">
-                                <span className="photo-label before">PRIMA</span>
-                                <img src={rec.beforePhoto} alt="Trattamento prima" />
-                              </div>
-                            )}
-                            {rec.afterPhoto && (
-                              <div className="photo-container">
-                                <span className="photo-label after">DOPO</span>
-                                <img src={rec.afterPhoto} alt="Trattamento dopo" />
-                              </div>
-                            )}
-                          </div>
-                        ) : (
-                          <div className="photo-upload-simulator-placeholder">
-                            {uploadingRecordId === rec.id ? (
-                              <div className="upload-progress-container">
-                                <div className="progress-bar-track">
-                                  <div className="progress-bar-fill" style={{ width: `${uploadProgress}%` }}></div>
-                                </div>
-                                <span className="progress-text">Caricamento foto Prima/Dopo... {uploadProgress}%</span>
-                              </div>
-                            ) : (
-                              <button 
-                                className="btn btn-secondary btn-sm"
-                                onClick={() => handleSimulatePhotoUpload(rec.id)}
-                              >
-                                <Camera size={14} />
-                                <span>Simula Caricamento Foto Trattamento</span>
-                              </button>
-                            )}
-                          </div>
-                        )}
-                      </div>
+
                     </div>
                   ))}
                 </div>
@@ -944,84 +866,6 @@ export default function ClientCRM({
           line-height: 1.5;
         }
 
-        /* Photos Area & Simulator */
-        .record-photos-area {
-          margin-top: 0.5rem;
-        }
-
-        .photos-row {
-          display: flex;
-          gap: 1.5rem;
-        }
-
-        .photo-container {
-          position: relative;
-          width: 180px;
-          height: 135px;
-          border-radius: var(--radius-md);
-          overflow: hidden;
-          border: 1px solid var(--border-glass);
-        }
-
-        .photo-container img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-
-        .photo-label {
-          position: absolute;
-          top: 8px;
-          left: 8px;
-          padding: 0.15rem 0.4rem;
-          border-radius: 4px;
-          font-size: 0.65rem;
-          font-weight: 700;
-          color: white;
-          z-index: 1;
-        }
-
-        .photo-label.before { background: rgba(239, 68, 68, 0.85); }
-        .photo-label.after { background: rgba(16, 185, 129, 0.85); }
-
-        .photo-upload-simulator-placeholder {
-          background: rgba(255,255,255,0.6);
-          border: 1px dashed var(--border-glass-hover);
-          border-radius: var(--radius-md);
-          padding: 1.5rem;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-
-        /* Progress simulator */
-        .upload-progress-container {
-          width: 100%;
-          max-width: 320px;
-          display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
-          align-items: center;
-        }
-
-        .progress-bar-track {
-          width: 100%;
-          height: 6px;
-          background: rgba(255,255,255,0.05);
-          border-radius: 99px;
-          overflow: hidden;
-        }
-
-        .progress-bar-fill {
-          height: 100%;
-          background: var(--accent-primary);
-          transition: width 0.15s ease-out;
-        }
-
-        .progress-text {
-          font-size: 0.75rem;
-          color: var(--text-sub);
-        }
 
         .text-danger-input {
           border-color: rgba(239, 68, 68, 0.15);

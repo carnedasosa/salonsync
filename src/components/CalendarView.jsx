@@ -524,7 +524,7 @@ export default function CalendarView({
           z-index: 50; /* Bring to front */
           box-shadow: 0 10px 30px rgba(236, 72, 153, 0.2);
           border-color: var(--accent-primary);
-          transform: scale(1.02);
+          transform: translateY(-2px);
           height: max-content !important;
           min-height: max-content !important;
           overflow: visible;
