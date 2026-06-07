@@ -14,24 +14,39 @@
  */
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
-import { SalonProvider } from './context/SalonContext';
-import { AppointmentsProvider } from './context/AppointmentsContext';
-import { ClientsProvider } from './context/ClientsContext';
-import { CatalogProvider } from './context/CatalogContext';
-import AppLayout from './components/AppLayout';
+import { SalonProvider } from './core/context/SalonContext';
+import { AppointmentsProvider } from './core/context/AppointmentsContext';
+import { ClientsProvider } from './core/context/ClientsContext';
+import { CatalogProvider } from './core/context/CatalogContext';
+import { ModalProvider } from './core/context/ModalContext';
+import AppLayout from './core/layout/AppLayout';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <SalonProvider>
-        <CatalogProvider>
-          <ClientsProvider>
-            <AppointmentsProvider>
-              <AppLayout />
-            </AppointmentsProvider>
-          </ClientsProvider>
-        </CatalogProvider>
-      </SalonProvider>
-    </BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <SalonProvider>
+          <CatalogProvider>
+            <ClientsProvider>
+              <AppointmentsProvider>
+                <ModalProvider>
+                  <AppLayout />
+                </ModalProvider>
+              </AppointmentsProvider>
+            </ClientsProvider>
+          </CatalogProvider>
+        </SalonProvider>
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 }

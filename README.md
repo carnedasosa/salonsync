@@ -1,16 +1,26 @@
-# React + Vite
+# salonSync 💅
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Un gestionale moderno per saloni di bellezza (estetica, unghie, ecc.) sviluppato con React, Vite e Supabase.
 
-Currently, two official plugins are available:
+> [!WARNING]  
+> **🚨 TO-DO PER LA PRODUZIONE (MOLTO IMPORTANTE) 🚨**  
+> Attualmente la sicurezza a livello di riga (Row Level Security - RLS) su Supabase è **DISABILITATA** per facilitare lo sviluppo e i test locali. 
+> Prima di pubblicare l'app in produzione (quando ci saranno dati di clienti veri o pagamenti online), **DEVI ASSOLUTAMENTE**:
+> 1. Abilitare RLS su tutte le tabelle nel pannello di Supabase.
+> 2. Creare le "Policy" di Supabase (es. permettere la lettura/scrittura solo agli utenti autenticati).
+> 3. Implementare una vera e propria schermata di Login nell'app.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Struttura e Tecnologie
 
-## React Compiler
+- **Frontend:** React, Vite, React Router
+- **State Management:** React Context (per evitare prop-drilling) + React Query (per la cache e chiamate a Supabase)
+- **Backend & Database:** Supabase (PostgreSQL)
+- **Stile:** Vanilla CSS + Lucide React per le icone
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Setup Locale
 
-## Expanding the ESLint configuration
+1. Installa le dipendenze: `npm install`
+2. Inserisci le tue chiavi Supabase (`VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY`) nel file `.env.local`.
+3. Crea le tabelle eseguendo lo script `supabase_schema.sql` nell'SQL Editor di Supabase.
+4. Avvia il server di sviluppo: `npm run dev`
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.

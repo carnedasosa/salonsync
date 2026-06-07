@@ -1,0 +1,452 @@
+.crm-container {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 2rem;
+  height: calc(100vh - 120px);
+  align-items: stretch;
+}
+
+@media (max-width: 1024px) {
+  .crm-container {
+    grid-template-columns: 240px 1fr;
+    gap: 1.5rem;
+  }
+}
+
+.back-to-list-btn {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .crm-container {
+    grid-template-columns: 1fr;
+    height: calc(100vh - 120px);
+  }
+  .crm-sidebar {
+    display: flex;
+    height: 100%;
+  }
+  .crm-dossier {
+    display: none;
+    height: 100%;
+  }
+  .crm-container.show-dossier .crm-sidebar {
+    display: none;
+  }
+  .crm-container.show-dossier .crm-dossier {
+    display: block;
+  }
+}
+
+/* CRM SIDEBAR */
+.crm-sidebar {
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem;
+  overflow-y: hidden;
+}
+
+.crm-sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.crm-sidebar-header h3 {
+  font-size: 1.15rem;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.crm-sidebar-header .btn-icon {
+  flex-shrink: 0;
+}
+
+.crm-search-bar {
+  position: relative;
+  margin-bottom: 0.75rem;
+}
+
+.crm-search-bar .search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+}
+
+.crm-search-bar .form-input {
+  padding-left: 2.25rem;
+}
+
+.crm-filter-row {
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-glass);
+}
+
+.allergy-filter-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: var(--text-sub);
+  font-weight: 500;
+}
+
+.filter-warning-icon {
+  color: var(--warning);
+}
+
+.crm-client-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.empty-search-text {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.client-list-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  color: var(--text-main);
+  text-align: left;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.client-list-item:hover {
+  background: rgba(255, 255, 255, 0.6);
+  border-color: var(--border-glass-hover);
+}
+
+.client-list-item.active {
+  background: rgba(236, 72, 153, 0.08);
+  border-color: var(--border-glass-hover);
+}
+
+.client-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-deep) 0%, var(--accent-secondary) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.client-info-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.client-name-text {
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.client-phone-text {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.allergy-indicator-dot {
+  font-size: 0.85rem;
+}
+
+/* CRM DOSSIER */
+.crm-dossier {
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.empty-dossier-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 4rem;
+}
+
+.dossier-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.dossier-header-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.dossier-title-row {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+@media (max-width: 640px) {
+  .dossier-title-row {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1rem;
+    align-items: center;
+  }
+  .back-to-list-btn {
+    display: inline-flex;
+    grid-column: 1 / -1;
+    grid-row: 1;
+    width: 100%;
+    margin-bottom: 0.25rem;
+  }
+  .dossier-avatar-large {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .dossier-name-details {
+    grid-column: 2;
+    grid-row: 2;
+  }
+  .dossier-title-row .btn-primary {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+.dossier-avatar-large {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--bg-space);
+  font-weight: 700;
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  box-shadow: 0 0 20px rgba(199, 125, 255, 0.3);
+}
+
+.dossier-name-details {
+  flex: 1;
+}
+
+.dossier-name-details h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* Red Allergy Banner */
+.allergy-danger-banner {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  color: var(--danger);
+}
+
+.alert-banner-icon {
+  color: var(--danger);
+  flex-shrink: 0;
+}
+
+.alert-banner-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.15rem;
+}
+
+.alert-banner-desc {
+  font-size: 0.85rem;
+  color: var(--text-main);
+}
+
+/* Dossier Meta Grid */
+.dossier-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  border-top: 1px solid var(--border-glass);
+  border-bottom: 1px solid var(--border-glass);
+  padding: 1.25rem 0;
+}
+
+.meta-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.meta-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.meta-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.text-glow .meta-value {
+  color: var(--accent-primary);
+  text-shadow: 0 0 8px rgba(236, 72, 153, 0.4);
+}
+
+.general-notes-box h4 {
+  font-size: 0.95rem;
+  color: var(--text-sub);
+  margin-bottom: 0.5rem;
+}
+
+.general-notes-box p {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.6);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  border: 1px dashed var(--border-glass-hover);
+}
+
+/* TIMELINE SECTION */
+.section-title {
+  font-size: 1.25rem;
+  margin-bottom: 1.25rem;
+  color: var(--text-main);
+}
+
+.empty-history-card {
+  padding: 3rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.treatment-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.treatment-record-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.record-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid var(--border-glass);
+  padding-bottom: 0.75rem;
+}
+
+.record-title-group .record-date {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.record-title-group h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-top: 0.15rem;
+}
+
+.record-meta-group {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.record-operator {
+  font-size: 0.8rem;
+  color: var(--text-sub);
+}
+
+.record-price {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--accent-glow);
+}
+
+/* Formula notebook card */
+.record-formula-notebook {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(236, 72, 153, 0.15);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  font-family: monospace;
+}
+
+.formula-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--accent-primary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(199, 125, 255, 0.1);
+  padding-bottom: 0.25rem;
+}
+
+.formula-content {
+  color: var(--text-main);
+  font-size: 0.85rem;
+  white-space: pre-line;
+  line-height: 1.5;
+}
+
+.text-danger-input {
+  border-color: rgba(239, 68, 68, 0.15);
+  color: var(--danger);
+}
+.text-danger-input:focus {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
