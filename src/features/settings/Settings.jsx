@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useSalon } from '../../core/context/SalonContext';
-import { Building, Users, Plus, Check } from 'lucide-react';
+import { Building, Users, Plus, Check, Trash2 } from 'lucide-react';
 import './Settings.css';
 
 // Palette di colori premium predefiniti per le operatrici
@@ -15,10 +15,12 @@ const STAFF_COLORS = [
 ];
 
 export default function Settings() {
-  const { salon, staff, addStaffMember } = useSalon();
+  const { salon, staff, addStaffMember, removeStaffMember } = useSalon();
   const [isAddingStaff, setIsAddingStaff] = useState(false);
   const [newStaff, setNewStaff] = useState({ name: '', role: 'Estetista', color: STAFF_COLORS[0] });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
 
   const handleAddStaff = async (e) => {
     e.preventDefault();
@@ -34,6 +36,19 @@ export default function Settings() {
       alert("Errore durante l'inserimento dell'operatrice.");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteStaff = async (id) => {
+    setDeletingId(id);
+    try {
+      await removeStaffMember(id);
+      setConfirmDeleteId(null);
+    } catch (err) {
+      console.error(err);
+      alert("Errore durante l'eliminazione dell'operatrice. Verifica che non abbia appuntamenti assegnati.");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -88,6 +103,7 @@ export default function Settings() {
                   <th>Nome</th>
                   <th>Ruolo</th>
                   <th>Colore Calendario</th>
+                  <th style={{ textAlign: 'right' }}>Azioni</th>
                 </tr>
               </thead>
               <tbody>
@@ -100,6 +116,35 @@ export default function Settings() {
                         <div className="color-dot" style={{ backgroundColor: member.color }}></div>
                         {member.color}
                       </div>
+                    </td>
+                    <td data-label="Azioni" style={{ textAlign: 'right' }}>
+                      {confirmDeleteId === member.id ? (
+                        <div className="delete-confirm-actions">
+                          <span className="delete-prompt">Sicuro?</span>
+                          <button 
+                            className="btn-delete-confirm" 
+                            onClick={() => handleDeleteStaff(member.id)}
+                            disabled={deletingId === member.id}
+                          >
+                            {deletingId === member.id ? '...' : <Check size={16} />}
+                          </button>
+                          <button 
+                            className="btn-delete-cancel" 
+                            onClick={() => setConfirmDeleteId(null)}
+                            disabled={deletingId === member.id}
+                          >
+                            Annulla
+                          </button>
+                        </div>
+                      ) : (
+                        <button 
+                          className="btn-icon-danger" 
+                          onClick={() => setConfirmDeleteId(member.id)}
+                          title="Elimina operatrice"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}

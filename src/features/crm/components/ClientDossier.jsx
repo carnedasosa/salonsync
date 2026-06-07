@@ -1,7 +1,9 @@
 import React from 'react';
 import { Plus, ShieldAlert, FileText } from 'lucide-react';
+import { useModal } from '../../../core/context/ModalContext';
 
-export default function ClientDossier({ client, setShowDossierMobile, setIsTreatmentModalOpen }) {
+export default function ClientDossier({ client, setShowDossierMobile }) {
+  const { openModal } = useModal();
   if (!client) {
     return (
       <section className="crm-dossier">
@@ -29,7 +31,7 @@ export default function ClientDossier({ client, setShowDossierMobile, setIsTreat
               <h2>{client.name}</h2>
               <p className="subtitle">Cliente registrata • Data di nascita: {client.birthday}</p>
             </div>
-            <button className="btn btn-primary" onClick={() => { setIsTreatmentModalOpen(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+            <button className="btn btn-primary" onClick={() => openModal('TREATMENT_RECORD', { client })}>
               <Plus size={18} />
               <span>Log Trattamento Eseguito</span>
             </button>
@@ -81,7 +83,7 @@ export default function ClientDossier({ client, setShowDossierMobile, setIsTreat
           {client.treatmentHistory.length === 0 ? (
             <div className="glass-card empty-history-card">
               <p className="empty-text">Nessun trattamento registrato nel database per questa cliente.</p>
-              <button className="btn btn-secondary btn-sm" onClick={() => { setIsTreatmentModalOpen(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+              <button className="btn btn-secondary btn-sm" onClick={() => openModal('TREATMENT_RECORD', { client })}>
                 Aggiungi il primo trattamento ora
               </button>
             </div>

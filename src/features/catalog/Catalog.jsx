@@ -1,29 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import { Sparkles, DollarSign, Clock, ShieldAlert, ShoppingBag, Plus, Search, Tag, AlertTriangle, Layers } from 'lucide-react';
 import { useCatalog } from '../../core/context/CatalogContext';
+import { useModal } from '../../core/context/ModalContext';
 
 export default function Catalog() {
-  const { services, products, addService, addProduct, updateStock } = useCatalog();
+  const { services, products, updateStock } = useCatalog();
+  const { openModal } = useModal();
   const [activeSubTab, setActiveSubTab] = useState('services');
   const [searchTerm, setSearchTerm] = useState('');
-
-  // Modals state
-  const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
-  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
-
-  // New Service Form State
-  const [servName, setServName] = useState('');
-  const [servCategory, setServCategory] = useState('Unghie');
-  const [servPrice, setServPrice] = useState('');
-  const [servDuration, setServDuration] = useState('');
-  const [servBuffer, setServBuffer] = useState('10');
-
-  // New Product Form State
-  const [prodName, setProdName] = useState('');
-  const [prodCategory, setProdCategory] = useState('Unghie');
-  const [prodPrice, setProdPrice] = useState('');
-  const [prodStock, setProdStock] = useState('');
-  const [prodMinStock, setProdMinStock] = useState('');
 
   // Filtering lists — memoised to avoid recomputing on every render
   const filteredServices = useMemo(() =>
@@ -39,58 +23,6 @@ export default function Catalog() {
       p.category.toLowerCase().includes(searchTerm.toLowerCase())
     ), [products, searchTerm]
   );
-
-  // Handlers
-  const handleCreateService = (e) => {
-    e.preventDefault();
-    if (!servName || !servPrice || !servDuration) return;
-
-    // Pick random pastel color for calendar background
-    const colors = ['#e0aaff', '#c77dff', '#9d4edd', '#7b2cbf', '#ff70a6', '#70d6ff', '#ff9770'];
-    const randomColor = colors[Math.floor(Math.random() * colors.length)];
-
-    const newService = {
-      id: `s_${Date.now()}`,
-      name: servName,
-      category: servCategory,
-      price: Number(servPrice),
-      duration: Number(servDuration),
-      buffer: Number(servBuffer),
-      color: randomColor
-    };
-
-    addService(newService);
-    setIsServiceModalOpen(false);
-    
-    // Reset
-    setServName('');
-    setServPrice('');
-    setServDuration('');
-    setServBuffer('10');
-  };
-
-  const handleCreateProduct = (e) => {
-    e.preventDefault();
-    if (!prodName || !prodPrice || !prodStock || !prodMinStock) return;
-
-    const newProduct = {
-      id: `p_${Date.now()}`,
-      name: prodName,
-      category: prodCategory,
-      price: Number(prodPrice),
-      stock: Number(prodStock),
-      minStock: Number(prodMinStock)
-    };
-
-    addProduct(newProduct);
-    setIsProductModalOpen(false);
-
-    // Reset
-    setProdName('');
-    setProdPrice('');
-    setProdStock('');
-    setProdMinStock('');
-  };
 
   return (
     <div className="catalog-tab-wrapper animate-fade-in">
@@ -133,12 +65,12 @@ export default function Catalog() {
         </div>
         
         {activeSubTab === 'services' ? (
-          <button className="btn btn-primary" onClick={() => { setIsServiceModalOpen(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+          <button className="btn btn-primary" onClick={() => openModal('NEW_SERVICE')}>
             <Plus size={16} />
             <span>Nuovo Trattamento</span>
           </button>
         ) : (
-          <button className="btn btn-primary" onClick={() => { setIsProductModalOpen(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+          <button className="btn btn-primary" onClick={() => openModal('NEW_PRODUCT')}>
             <Plus size={16} />
             <span>Nuovo Prodotto</span>
           </button>
@@ -267,180 +199,7 @@ export default function Catalog() {
         </div>
       )}
 
-      {/* MODAL 1: Create Service */}
-      {isServiceModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h3>Aggiungi Nuovo Trattamento a Listino</h3>
-              <button className="modal-close" onClick={() => setIsServiceModalOpen(false)}>×</button>
-            </div>
 
-            <form onSubmit={handleCreateService}>
-              <div className="form-group">
-                <label className="form-label">Nome Trattamento</label>
-                <input 
-                  type="text" 
-                  className="form-input"
-                  value={servName}
-                  onChange={(e) => setServName(e.target.value)}
-                  placeholder="es. Laminazione Ciglia Superiori"
-                  required
-                />
-              </div>
-
-              <div className="form-row-2col">
-                <div className="form-group">
-                  <label className="form-label">Categoria</label>
-                  <select 
-                    className="form-select"
-                    value={servCategory}
-                    onChange={(e) => setServCategory(e.target.value)}
-                  >
-                    <option value="Unghie">Unghie</option>
-                    <option value="Viso">Viso</option>
-                    <option value="Corpo">Corpo</option>
-                    <option value="Sguardo">Sguardo</option>
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Prezzo (€)</label>
-                  <input 
-                    type="number" 
-                    className="form-input"
-                    value={servPrice}
-                    onChange={(e) => setServPrice(e.target.value)}
-                    placeholder="es. 45"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="form-row-2col">
-                <div className="form-group">
-                  <label className="form-label">Durata in Cabina (Minuti)</label>
-                  <input 
-                    type="number" 
-                    className="form-input"
-                    value={servDuration}
-                    onChange={(e) => setServDuration(e.target.value)}
-                    placeholder="es. 60"
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Buffer Sanificazione (Minuti)</label>
-                  <input 
-                    type="number" 
-                    className="form-input"
-                    value={servBuffer}
-                    onChange={(e) => setServBuffer(e.target.value)}
-                    placeholder="Tempo per pulire la postazione"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="modal-actions-row">
-                <button type="button" className="btn btn-secondary" onClick={() => setIsServiceModalOpen(false)}>
-                  Annulla
-                </button>
-                <button type="submit" className="btn btn-primary">
-                  Aggiungi a Listino
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL 2: Create Product */}
-      {isProductModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h3>Inserisci Nuovo Prodotto in Inventario</h3>
-              <button className="modal-close" onClick={() => setIsProductModalOpen(false)}>×</button>
-            </div>
-
-            <form onSubmit={handleCreateProduct}>
-              <div className="form-group">
-                <label className="form-label">Nome Prodotto</label>
-                <input 
-                  type="text" 
-                  className="form-input"
-                  value={prodName}
-                  onChange={(e) => setProdName(e.target.value)}
-                  placeholder="es. Crema Idratante Acido Ialuronico 50ml"
-                  required
-                />
-              </div>
-
-              <div className="form-row-2col">
-                <div className="form-group">
-                  <label className="form-label">Categoria</label>
-                  <select 
-                    className="form-select"
-                    value={prodCategory}
-                    onChange={(e) => setProdCategory(e.target.value)}
-                  >
-                    <option value="Unghie">Unghie</option>
-                    <option value="Viso">Viso</option>
-                    <option value="Corpo">Corpo</option>
-                    <option value="Sguardo">Sguardo</option>
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Prezzo Vendita (€)</label>
-                  <input 
-                    type="number" 
-                    step="0.01"
-                    className="form-input"
-                    value={prodPrice}
-                    onChange={(e) => setProdPrice(e.target.value)}
-                    placeholder="es. 19.90"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="form-row-2col">
-                <div className="form-group">
-                  <label className="form-label">Giacenza Iniziale (Scorte)</label>
-                  <input 
-                    type="number" 
-                    className="form-input"
-                    value={prodStock}
-                    onChange={(e) => setProdStock(e.target.value)}
-                    placeholder="Quanti pezzi hai adesso?"
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Soglia Minima (Allerta scorta)</label>
-                  <input 
-                    type="number" 
-                    className="form-input"
-                    value={prodMinStock}
-                    onChange={(e) => setProdMinStock(e.target.value)}
-                    placeholder="Sotto questo valore scatta l'allerta"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="modal-actions-row">
-                <button type="button" className="btn btn-secondary" onClick={() => setIsProductModalOpen(false)}>
-                  Annulla
-                </button>
-                <button type="submit" className="btn btn-primary">
-                  Registra Prodotto
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
       <style>{`
         .catalog-tab-wrapper {

@@ -331,9 +331,10 @@ h1, h2, h3, h4, h5, h6 {
   backdrop-filter: blur(8px);
   z-index: 1000;
   display: flex;
-  align-items: center;
+  align-items: flex-start; /* Changed from center to fix top clipping */
   justify-content: center;
-  padding: 1.5rem;
+  padding: 4rem 1.5rem; /* More padding on top/bottom for scrolling space */
+  overflow-y: auto; /* Scroll the overlay itself */
 }
 
 .modal-content {
@@ -342,8 +343,7 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: var(--radius-lg);
   max-width: 650px;
   width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
+  margin: auto; /* Centers safely when smaller than viewport */
   padding: 2.5rem;
   box-shadow: 0 25px 50px -12px rgba(236, 72, 153, 0.25);
   animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
@@ -365,12 +365,15 @@ h1, h2, h3, h4, h5, h6 {
     align-items: flex-start;
     justify-content: stretch;
     padding: 1rem;
+    overflow-y: hidden; /* Prevent double scrollbars on mobile */
   }
 
   .modal-content {
+    margin: 0; /* Override desktop center margin */
     max-width: 100%;
     width: 100%;
     max-height: 92dvh;
+    overflow-y: auto; /* Restore inner scroll for mobile */
     border-radius: var(--radius-lg);
     padding: 1.25rem 1.25rem 2rem;
     animation: slideDown 0.3s cubic-bezier(0.32, 0.72, 0, 1) forwards;

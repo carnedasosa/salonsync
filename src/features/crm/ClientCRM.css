@@ -240,6 +240,24 @@
     width: 100%;
     justify-content: center;
   }
+
+  /* Make 'Create Client' button a Floating Action Button on mobile */
+  .crm-sidebar-header .btn-icon {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 56px;
+    height: 56px;
+    min-width: 56px;
+    min-height: 56px;
+    border-radius: 50%;
+    box-shadow: 0 8px 25px rgba(236, 72, 153, 0.4);
+    z-index: 999;
+  }
+  .crm-sidebar-header .btn-icon svg {
+    width: 24px;
+    height: 24px;
+  }
 }
 
 .dossier-avatar-large {

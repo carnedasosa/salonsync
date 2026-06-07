@@ -62,9 +62,18 @@ export function SalonProvider({ children }) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['staff'] })
   });
 
+  const deleteStaffMutation = useMutation({
+    mutationFn: async (staffId) => {
+      const { error } = await supabase.from('staff').delete().eq('id', staffId);
+      if (error) throw error;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['staff'] })
+  });
+
   // Funzioni helper per la retrocompatibilità dell'interfaccia
   const updateSalon = (updates) => updateSalonMutation.mutateAsync(updates);
   const addStaffMember = (member) => addStaffMutation.mutateAsync(member);
+  const removeStaffMember = (staffId) => deleteStaffMutation.mutateAsync(staffId);
 
   // Rimosso il fallback temporaneo per forzare l'uso del DB o della pagina di Onboarding
   return (
@@ -73,6 +82,7 @@ export function SalonProvider({ children }) {
       staff: staff || [], 
       updateSalon, 
       addStaffMember,
+      removeStaffMember,
       isLoading: salonLoading || staffLoading
     }}>
       {children}

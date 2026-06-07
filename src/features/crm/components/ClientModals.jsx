@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useClients } from '../../../core/context/ClientsContext';
 import { useModal } from '../../../core/context/ModalContext';
+import { useCatalog } from '../../../core/context/CatalogContext';
+import { useSalon } from '../../../core/context/SalonContext';
 
 export function NewClientModal({ onSuccess }) {
   const { addClient } = useClients();
@@ -143,30 +145,49 @@ export function NewClientModal({ onSuccess }) {
   );
 }
 
-export function TreatmentRecordModal({
-  isTreatmentModalOpen,
-  setIsTreatmentModalOpen,
-  client,
-  handleAddRecord,
-  services,
-  staff,
-  treatServiceId,
-  setTreatServiceId,
-  treatOperatorId,
-  setTreatOperatorId,
-  treatPrice,
-  setTreatPrice,
-  treatNotes,
-  setTreatNotes
-}) {
-  if (!isTreatmentModalOpen) return null;
+export function TreatmentRecordModal({ client }) {
+  const { addTreatmentRecord } = useClients();
+  const { services } = useCatalog();
+  const { staff } = useSalon();
+  const { closeModal } = useModal();
+
+  const [treatServiceId, setTreatServiceId] = useState('');
+  const [treatOperatorId, setTreatOperatorId] = useState(staff[0]?.id || '');
+  const [treatNotes, setTreatNotes] = useState('');
+  const [treatPrice, setTreatPrice] = useState('');
+
+  if (!client) return null;
+
+  const handleAddRecord = (e) => {
+    e.preventDefault();
+    if (!treatServiceId || !treatOperatorId || !treatNotes) return;
+
+    const selectedService = services.find(s => s.id === treatServiceId);
+    const selectedOperator = staff.find(st => st.id === treatOperatorId);
+
+    if (!selectedService || !selectedOperator) return;
+    
+    const newRecord = {
+      id: `th_${Date.now()}`,
+      date: new Date().toISOString().split('T')[0],
+      serviceName: selectedService.name,
+      operatorName: selectedOperator.name,
+      notes: treatNotes,
+      price: Number(treatPrice) || selectedService.price,
+      beforePhoto: '',
+      afterPhoto: ''
+    };
+
+    addTreatmentRecord(client.id, newRecord);
+    closeModal();
+  };
 
   return (
     <div className="modal-overlay">
       <div className="modal-content">
         <div className="modal-header">
           <h3>Registra Trattamento: {client.name}</h3>
-          <button className="modal-close" onClick={() => setIsTreatmentModalOpen(false)}>×</button>
+          <button type="button" className="modal-close" onClick={closeModal}>×</button>
         </div>
 
         <form onSubmit={handleAddRecord}>
@@ -228,7 +249,7 @@ export function TreatmentRecordModal({
           </div>
 
           <div className="modal-actions-row">
-            <button type="button" className="btn btn-secondary" onClick={() => setIsTreatmentModalOpen(false)}>
+            <button type="button" className="btn btn-secondary" onClick={closeModal}>
               Annulla
             </button>
             <button type="submit" className="btn btn-primary">
