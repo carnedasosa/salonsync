@@ -7,16 +7,27 @@ export default function ClientDossier({ client, setShowDossierMobile, setSelecte
   const { openModal } = useModal();
   const { deleteClient } = useClients();
 
-  const handleDelete = async () => {
-    if (window.confirm("Sei sicuro di voler eliminare definitivamente questo cliente e tutto il suo storico trattamenti? Questa azione non può essere annullata.")) {
-      try {
-        await deleteClient(client.id);
-        setSelectedClientId(null);
-        setShowDossierMobile(false);
-      } catch (err) {
-        alert("Errore durante l'eliminazione: " + err.message);
+  const handleDelete = () => {
+    openModal('CONFIRM_ACTION', {
+      title: "Elimina Cliente",
+      message: "Sei sicuro di voler eliminare definitivamente questo cliente e tutto il suo storico trattamenti? Questa azione non può essere annullata.",
+      confirmText: "Sì, elimina",
+      cancelText: "Annulla",
+      onConfirm: async () => {
+        try {
+          await deleteClient(client.id);
+          setSelectedClientId(null);
+          setShowDossierMobile(false);
+          openModal('SUCCESS_FEEDBACK', { 
+            title: "Cliente Eliminato",
+            message: "Il contatto è stato rimosso con successo.",
+            autoCloseMs: 2500
+          });
+        } catch (err) {
+          alert("Errore durante l'eliminazione: " + err.message);
+        }
       }
-    }
+    });
   };
   if (!client) {
     return (
