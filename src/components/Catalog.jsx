@@ -1,14 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Sparkles, DollarSign, Clock, ShieldAlert, ShoppingBag, Plus, Search, Tag, AlertTriangle, Layers } from 'lucide-react';
+import { useCatalog } from '../context/CatalogContext';
 
-export default function Catalog({ 
-  services, 
-  products, 
-  onAddService, 
-  onAddProduct, 
-  onUpdateStock 
-}) {
-  const [activeSubTab, setActiveSubTab] = useState('services'); // 'services' or 'products'
+export default function Catalog() {
+  const { services, products, addService, addProduct, updateStock } = useCatalog();
+  const [activeSubTab, setActiveSubTab] = useState('services');
   const [searchTerm, setSearchTerm] = useState('');
 
   // Modals state
@@ -29,15 +25,19 @@ export default function Catalog({
   const [prodStock, setProdStock] = useState('');
   const [prodMinStock, setProdMinStock] = useState('');
 
-  // Filtering lists
-  const filteredServices = services.filter(s => 
-    s.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    s.category.toLowerCase().includes(searchTerm.toLowerCase())
+  // Filtering lists — memoised to avoid recomputing on every render
+  const filteredServices = useMemo(() =>
+    services.filter(s =>
+      s.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      s.category.toLowerCase().includes(searchTerm.toLowerCase())
+    ), [services, searchTerm]
   );
 
-  const filteredProducts = products.filter(p => 
-    p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    p.category.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredProducts = useMemo(() =>
+    products.filter(p =>
+      p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      p.category.toLowerCase().includes(searchTerm.toLowerCase())
+    ), [products, searchTerm]
   );
 
   // Handlers
@@ -59,7 +59,7 @@ export default function Catalog({
       color: randomColor
     };
 
-    onAddService(newService);
+    addService(newService);
     setIsServiceModalOpen(false);
     
     // Reset
@@ -82,7 +82,7 @@ export default function Catalog({
       minStock: Number(prodMinStock)
     };
 
-    onAddProduct(newProduct);
+    addProduct(newProduct);
     setIsProductModalOpen(false);
 
     // Reset
@@ -133,12 +133,12 @@ export default function Catalog({
         </div>
         
         {activeSubTab === 'services' ? (
-          <button className="btn btn-primary" onClick={() => setIsServiceModalOpen(true)}>
+          <button className="btn btn-primary" onClick={() => { setIsServiceModalOpen(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
             <Plus size={16} />
             <span>Nuovo Trattamento</span>
           </button>
         ) : (
-          <button className="btn btn-primary" onClick={() => setIsProductModalOpen(true)}>
+          <button className="btn btn-primary" onClick={() => { setIsProductModalOpen(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
             <Plus size={16} />
             <span>Nuovo Prodotto</span>
           </button>
@@ -242,7 +242,7 @@ export default function Catalog({
                           <div className="stock-actions-cell">
                             <button 
                               className="stock-adjust-btn sell"
-                              onClick={() => onUpdateStock(p.id, -1)}
+                              onClick={() => updateStock(p.id, -1)}
                               disabled={p.stock <= 0}
                               title="Registra vendita (-1 scorta)"
                             >
@@ -250,7 +250,7 @@ export default function Catalog({
                             </button>
                             <button 
                               className="stock-adjust-btn restock"
-                              onClick={() => onUpdateStock(p.id, 5)}
+                              onClick={() => updateStock(p.id, 5)}
                               title="Rifornisci magazzino (+5 scorte)"
                             >
                               +5 Rifornisci

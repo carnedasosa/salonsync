@@ -1,32 +1,48 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Calendar, TrendingUp, Users, AlertCircle, PlusCircle, UserPlus, CheckCircle, Clock } from 'lucide-react';
+import { MOCK_TODAY, AppointmentStatus } from '../data/constants';
+import { useAppointments } from '../context/AppointmentsContext';
+import { useClients } from '../context/ClientsContext';
+import { useCatalog } from '../context/CatalogContext';
 
-export default function Dashboard({ 
-  clients, 
-  appointments, 
-  services, 
-  products, 
-  revenueHistory,
-  setCurrentTab,
+export default function Dashboard({
   onOpenNewBookingModal,
   onOpenNewClientModal,
-  onUpdateAppointmentStatus
+  onUpdateAppointmentStatus,
 }) {
+  const { appointments, revenueHistory } = useAppointments();
+  const { clients } = useClients();
+  const { products } = useCatalog();
   // Filter today's appointments
-  const todayStr = '2026-06-05'; // Static date representing "today" in mock data
-  const todayAppointments = appointments.filter(app => app.date === todayStr);
-  const completedToday = todayAppointments.filter(app => app.status === 'completed');
+  const todayAppointments = useMemo(
+    () => appointments.filter(app => app.date === MOCK_TODAY),
+    [appointments]
+  );
+
+  const completedToday = useMemo(
+    () => todayAppointments.filter(app => app.status === AppointmentStatus.COMPLETED),
+    [todayAppointments]
+  );
   
   // Calculate today's revenue (from completed or confirmed appts)
-  const todayRevenue = todayAppointments
-    .filter(app => app.status === 'completed' || app.status === 'confirmed')
-    .reduce((sum, app) => sum + app.price, 0);
+  const todayRevenue = useMemo(
+    () => todayAppointments
+      .filter(app => app.status === AppointmentStatus.COMPLETED || app.status === AppointmentStatus.CONFIRMED)
+      .reduce((sum, app) => sum + app.price, 0),
+    [todayAppointments]
+  );
 
   // Products under min stock
-  const lowStockProducts = products.filter(p => p.stock <= p.minStock);
+  const lowStockProducts = useMemo(
+    () => products.filter(p => p.stock <= p.minStock),
+    [products]
+  );
 
   // Monthly revenue for the chart (max value for scaling)
-  const maxRevenue = Math.max(...revenueHistory.map(r => r.revenue));
+  const maxRevenue = useMemo(
+    () => Math.max(...revenueHistory.map(r => r.revenue)),
+    [revenueHistory]
+  );
 
   return (
     <div className="dashboard-wrapper animate-fade-in">
@@ -128,7 +144,7 @@ export default function Dashboard({
                         <span className="app-price">€{app.price}</span>
                       </div>
                       <div className="app-status-actions">
-                        {app.status === 'confirmed' ? (
+                        {app.status === AppointmentStatus.CONFIRMED ? (
                           <button 
                             className="status-action-btn complete-btn" 
                             title="Segna come completato"
@@ -139,7 +155,7 @@ export default function Dashboard({
                           </button>
                         ) : (
                           <span className={`status-badge-inline ${app.status}`}>
-                            {app.status === 'completed' ? 'Completato' : 'No-show'}
+                            {app.status === AppointmentStatus.COMPLETED ? 'Completato' : 'No-show'}
                           </span>
                         )}
                       </div>

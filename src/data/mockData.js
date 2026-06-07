@@ -10,9 +10,6 @@ export const mockServices = [
   { id: 's7', name: 'Epilazione Total Body', category: 'Corpo', price: 80, duration: 75, buffer: 15, color: '#240046' }
 ];
 
-export const mockStaff = [
-  { id: 'st1', name: 'Aurora', role: 'Estetista', color: '#c77dff' }
-];
 
 export const mockProducts = [
   { id: 'p1', name: 'Olio Cuticole al Limone 15ml', category: 'Unghie', stock: 12, minStock: 5, price: 12.90 },

@@ -1,13 +1,18 @@
 import React from 'react';
+import { NavLink } from 'react-router-dom';
 import { LayoutDashboard, Calendar, Users, ShoppingBag, Sparkles } from 'lucide-react';
+import { useSalon } from '../context/SalonContext';
 
-export default function Sidebar({ currentTab, setCurrentTab }) {
-  const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'calendar', label: 'Calendario', icon: Calendar },
-    { id: 'crm', label: 'Schede Clienti', icon: Users },
-    { id: 'catalog', label: 'Listino & Scorte', icon: ShoppingBag },
-  ];
+// Defined at module scope — avoids recreation on every render
+const MENU_ITEMS = [
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'calendar', label: 'Calendario', icon: Calendar },
+  { id: 'crm', label: 'Schede Clienti', icon: Users },
+  { id: 'catalog', label: 'Listino & Scorte', icon: ShoppingBag },
+];
+
+export default function Sidebar() {
+  const { salon } = useSalon();
 
   return (
     <aside className="sidebar">
@@ -19,26 +24,30 @@ export default function Sidebar({ currentTab, setCurrentTab }) {
       </div>
 
       <div className="salon-status-card">
-        <div className="status-dot"></div>
+        <div className="status-dot" style={{ backgroundColor: salon.isOpen ? 'var(--success)' : 'var(--danger)' }}></div>
         <div className="status-info">
-          <p className="salon-title">Aurora's Beauty Lab</p>
-          <p className="salon-subtitle">Salone Aperto</p>
+          <p className="salon-title">{salon.name}</p>
+          <p className="salon-subtitle">{salon.isOpen ? 'Salone Aperto' : 'Salone Chiuso'}</p>
         </div>
       </div>
 
       <nav className="sidebar-nav">
-        {menuItems.map((item) => {
+        {MENU_ITEMS.map((item) => {
           const IconComponent = item.icon;
           return (
-            <button
+            <NavLink
               key={item.id}
-              onClick={() => setCurrentTab(item.id)}
-              className={`nav-item ${currentTab === item.id ? 'active' : ''}`}
+              to={`/${item.id}`}
+              className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
             >
-              <IconComponent className="nav-icon" size={20} />
-              <span className="nav-label">{item.label}</span>
-              {currentTab === item.id && <div className="nav-active-indicator" />}
-            </button>
+              {({ isActive }) => (
+                <>
+                  <IconComponent className="nav-icon" size={20} />
+                  <span className="nav-label">{item.label}</span>
+                  {isActive && <div className="nav-active-indicator" />}
+                </>
+              )}
+            </NavLink>
           );
         })}
       </nav>

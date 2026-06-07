@@ -1,22 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar as CalendarIcon, Clock, User, PlusCircle, AlertCircle, CheckCircle, HelpCircle } from 'lucide-react';
+import { MOCK_TODAY, AppointmentStatus } from '../data/constants';
+import { useAppointments } from '../context/AppointmentsContext';
+import { useClients } from '../context/ClientsContext';
+import { useCatalog } from '../context/CatalogContext';
+import { useSalon } from '../context/SalonContext';
+import { hasScheduleConflict, timeToMinutes } from '../utils/calendarUtils';
 
-export default function CalendarView({ 
-  appointments, 
-  clients, 
-  services, 
-  staff, 
-  onAddAppointment, 
+export default function CalendarView({
   onUpdateAppointmentStatus,
   forceOpenModal,
-  onResetForceOpen
+  onResetForceOpen,
 }) {
-  const [selectedDate, setSelectedDate] = useState('2026-06-05'); // Static "today" by default
+  const { appointments, addAppointment } = useAppointments();
+  const { clients } = useClients();
+  const { services } = useCatalog();
+  const { staff } = useSalon();
+  const [selectedDate, setSelectedDate] = useState(MOCK_TODAY);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     if (forceOpenModal) {
       setIsModalOpen(true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       if (onResetForceOpen) onResetForceOpen();
     }
   }, [forceOpenModal, onResetForceOpen]);
@@ -33,12 +39,6 @@ export default function CalendarView({
   const startHour = 9; // 09:00
   const endHour = 20;  // 20:00 (grid goes up to 20:00)
   const totalMinutes = (endHour - startHour) * 60; // 660 minutes
-
-  // Helper to parse time "HH:MM" to minutes since midnight
-  const timeToMinutes = (timeStr) => {
-    const [h, m] = timeStr.split(':').map(Number);
-    return h * 60 + m;
-  };
 
   // Filter appointments for the selected date
   const dateAppointments = appointments.filter(app => app.date === selectedDate);
@@ -73,24 +73,19 @@ export default function CalendarView({
     const selectedClient = clients.find(c => c.id === clientId);
     const selectedOperator = staff.find(st => st.id === operatorId);
 
-    const newStartMin = timeToMinutes(time);
-    const newEndMin = newStartMin + selectedService.duration;
-    const newEndMinWithBuffer = newEndMin + selectedService.buffer;
+    // Null-guard: ensure all lookups succeeded before proceeding
+    if (!selectedService || !selectedClient || !selectedOperator) {
+      setValidationError('Errore interno: dati non validi. Riprova.');
+      return;
+    }
 
-    // Check for schedule overlaps with the same operator on the same day
-    const hasConflict = appointments.some(app => {
-      if (app.date !== selectedDate || app.operatorId !== operatorId || app.status === 'cancelled') {
-        return false;
-      }
-      
-      const appStartMin = timeToMinutes(app.time);
-      const appEndMin = appStartMin + app.duration;
-      const appEndMinWithBuffer = appEndMin + app.buffer;
-
-      // Overlap detection including buffer times
-      const overlap = (newStartMin < appEndMinWithBuffer && newEndMinWithBuffer > appStartMin);
-      return overlap;
-    });
+    const hasConflict = hasScheduleConflict({
+      date: selectedDate,
+      time,
+      duration: selectedService.duration,
+      buffer: selectedService.buffer,
+      operatorId
+    }, appointments);
 
     if (hasConflict) {
       setValidationError(`Conflitto di orario! L'operatrice ${selectedOperator.name} è occupata in quella fascia oraria (considerando anche i tempi di sanificazione).`);
@@ -111,10 +106,10 @@ export default function CalendarView({
       duration: selectedService.duration,
       buffer: selectedService.buffer,
       price: selectedService.price,
-      status: 'confirmed'
+      status: AppointmentStatus.CONFIRMED
     };
 
-    onAddAppointment(newAppointment);
+    addAppointment(newAppointment);
     setIsModalOpen(false);
     
     // Reset form
@@ -126,7 +121,7 @@ export default function CalendarView({
 
   // Generate date options
   const dates = [
-    { label: 'Oggi (5 Giu)', value: '2026-06-05' },
+    { label: 'Oggi (5 Giu)', value: MOCK_TODAY },
     { label: 'Domani (6 Giu)', value: '2026-06-06' },
     { label: 'Lunedì (8 Giu)', value: '2026-06-08' }
   ];
@@ -150,7 +145,7 @@ export default function CalendarView({
               </button>
             ))}
           </div>
-          <button className="btn btn-primary" onClick={() => setIsModalOpen(true)}>
+          <button className="btn btn-primary" onClick={() => { setIsModalOpen(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
             <PlusCircle size={18} />
             <span>Nuova Prenotazione</span>
           </button>
@@ -213,7 +208,7 @@ export default function CalendarView({
                         
                         {/* Status indicators and quick complete action */}
                         <div className="event-footer">
-                          {app.status === 'confirmed' ? (
+                          {app.status === AppointmentStatus.CONFIRMED ? (
                             <button 
                               className="event-complete-action" 
                               onClick={(e) => {
@@ -226,7 +221,7 @@ export default function CalendarView({
                             </button>
                           ) : (
                             <span className={`event-status-tag ${app.status}`}>
-                              {app.status === 'completed' ? 'Eseguito' : 'No-show'}
+                              {app.status === AppointmentStatus.COMPLETED ? 'Eseguito' : 'No-show'}
                             </span>
                           )}
                           <span className="event-price">€{app.price}</span>

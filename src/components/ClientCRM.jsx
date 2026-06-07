@@ -1,18 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Search, UserPlus, AlertTriangle, FileText, Camera, Plus, Check, Clock, ShieldAlert, Sparkles, Upload } from 'lucide-react';
+import { useClients } from '../context/ClientsContext';
+import { useCatalog } from '../context/CatalogContext';
+import { useSalon } from '../context/SalonContext';
 
-export default function ClientCRM({ 
-  clients, 
-  services, 
-  staff, 
-  onAddClient, 
-  onAddTreatmentRecord,
+export default function ClientCRM({
   forceOpenClientModal,
-  onResetForceOpenClient
+  onResetForceOpenClient,
 }) {
+  const { clients, addClient, addTreatmentRecord } = useClients();
+  const { services } = useCatalog();
+  const { staff } = useSalon();
   const [selectedClientId, setSelectedClientId] = useState(clients[0]?.id || '');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterAllergiesOnly, setFilterAllergiesOnly] = useState(false);
+  const [showDossierMobile, setShowDossierMobile] = useState(false);
 
   // Client Details Modals & Forms State
   const [isClientModalOpen, setIsClientModalOpen] = useState(false);
@@ -21,19 +23,20 @@ export default function ClientCRM({
   useEffect(() => {
     if (forceOpenClientModal) {
       setIsClientModalOpen(true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       if (onResetForceOpenClient) onResetForceOpenClient();
     }
   }, [forceOpenClientModal, onResetForceOpenClient]);
 
 
-  // New Client Form State
-  const [newClientName, setNewClientName] = useState('');
-  const [newClientEmail, setNewClientEmail] = useState('');
-  const [newClientPhone, setNewClientPhone] = useState('');
-  const [newClientBirthday, setNewClientBirthday] = useState('');
-  const [newClientSkinType, setNewClientSkinType] = useState('Mista');
-  const [newClientAllergies, setNewClientAllergies] = useState('');
-  const [newClientNotes, setNewClientNotes] = useState('');
+  // New Client Form State — grouped to avoid parameter sprawl
+  const INITIAL_CLIENT_FORM = {
+    name: '', email: '', phone: '', birthday: '',
+    skinType: 'Mista', allergies: '', notes: ''
+  };
+  const [newClientForm, setNewClientForm] = useState(INITIAL_CLIENT_FORM);
+  const setClientField = (field) => (e) =>
+    setNewClientForm(prev => ({ ...prev, [field]: e.target.value }));
 
   // New Treatment Record Form State
   const [treatServiceId, setTreatServiceId] = useState('');
@@ -45,43 +48,35 @@ export default function ClientCRM({
   // Get selected client object
   const client = clients.find(c => c.id === selectedClientId) || clients[0];
 
-  // Filter client list
-  const filteredClients = clients.filter(c => {
-    const matchesSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+  // Filter client list — memoised to avoid recomputing on every render
+  const filteredClients = useMemo(() => clients.filter(c => {
+    const matchesSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           c.phone.includes(searchQuery);
     const matchesAllergyFilter = !filterAllergiesOnly || (c.allergies && c.allergies.toLowerCase() !== 'nessuna');
     return matchesSearch && matchesAllergyFilter;
-  });
+  }), [clients, searchQuery, filterAllergiesOnly]);
 
   // Handle new client creation
   const handleCreateClient = (e) => {
     e.preventDefault();
-    if (!newClientName || !newClientPhone) return;
+    if (!newClientForm.name || !newClientForm.phone) return;
 
     const newClient = {
       id: `c_${Date.now()}`,
-      name: newClientName,
-      email: newClientEmail || 'Nessuna email',
-      phone: newClientPhone,
-      birthday: newClientBirthday || 'Non specificata',
-      skinType: newClientSkinType,
-      allergies: newClientAllergies || 'Nessuna',
-      generalNotes: newClientNotes || 'Nessuna nota iniziale.',
+      name: newClientForm.name,
+      email: newClientForm.email || 'Nessuna email',
+      phone: newClientForm.phone,
+      birthday: newClientForm.birthday || 'Non specificata',
+      skinType: newClientForm.skinType,
+      allergies: newClientForm.allergies || 'Nessuna',
+      generalNotes: newClientForm.notes || 'Nessuna nota iniziale.',
       treatmentHistory: []
     };
 
-    onAddClient(newClient);
+    addClient(newClient);
     setSelectedClientId(newClient.id);
     setIsClientModalOpen(false);
-
-    // Reset fields
-    setNewClientName('');
-    setNewClientEmail('');
-    setNewClientPhone('');
-    setNewClientBirthday('');
-    setNewClientSkinType('Mista');
-    setNewClientAllergies('');
-    setNewClientNotes('');
+    setNewClientForm(INITIAL_CLIENT_FORM); // Reset all fields in one call
   };
 
   // Handle logging new treatment record
@@ -91,6 +86,9 @@ export default function ClientCRM({
 
     const selectedService = services.find(s => s.id === treatServiceId);
     const selectedOperator = staff.find(st => st.id === treatOperatorId);
+
+    // Null-guard: ensure lookups succeeded
+    if (!selectedService || !selectedOperator) return;
     
     const newRecord = {
       id: `th_${Date.now()}`,
@@ -103,7 +101,7 @@ export default function ClientCRM({
       afterPhoto: ''
     };
 
-    onAddTreatmentRecord(client.id, newRecord);
+    addTreatmentRecord(client.id, newRecord);
     setIsTreatmentModalOpen(false);
 
     // Reset fields
@@ -115,12 +113,12 @@ export default function ClientCRM({
 
 
   return (
-    <div className="crm-container animate-fade-in">
+    <div className={`crm-container animate-fade-in ${showDossierMobile ? 'show-dossier' : ''}`}>
       {/* LEFT COLUMN: Client Search & Listing */}
       <aside className="crm-sidebar glass-card">
         <div className="crm-sidebar-header">
           <h3>Clienti Salone</h3>
-          <button className="btn btn-primary btn-icon" onClick={() => setIsClientModalOpen(true)} title="Aggiungi Cliente">
+          <button className="btn btn-primary btn-icon" onClick={() => { setIsClientModalOpen(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }} title="Aggiungi Cliente">
             <UserPlus size={18} />
           </button>
         </div>
@@ -159,7 +157,10 @@ export default function ClientCRM({
               return (
                 <button
                   key={c.id}
-                  onClick={() => setSelectedClientId(c.id)}
+                  onClick={() => {
+                    setSelectedClientId(c.id);
+                    setShowDossierMobile(true);
+                  }}
                   className={`client-list-item ${client?.id === c.id ? 'active' : ''}`}
                 >
                   <div className="client-avatar">
@@ -191,6 +192,9 @@ export default function ClientCRM({
             {/* 1. Profile Summary Card */}
             <div className="glass-card dossier-header-card">
               <div className="dossier-title-row">
+                <button className="btn btn-secondary back-to-list-btn" onClick={() => setShowDossierMobile(false)}>
+                  ← Lista Clienti
+                </button>
                 <div className="dossier-avatar-large">
                   {client.name.split(' ').map(n => n[0]).join('')}
                 </div>
@@ -198,7 +202,7 @@ export default function ClientCRM({
                   <h2>{client.name}</h2>
                   <p className="subtitle">Cliente registrata • Data di nascita: {client.birthday}</p>
                 </div>
-                <button className="btn btn-primary" onClick={() => setIsTreatmentModalOpen(true)}>
+                <button className="btn btn-primary" onClick={() => { setIsTreatmentModalOpen(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
                   <Plus size={18} />
                   <span>Log Trattamento Eseguito</span>
                 </button>
@@ -250,7 +254,7 @@ export default function ClientCRM({
               {client.treatmentHistory.length === 0 ? (
                 <div className="glass-card empty-history-card">
                   <p className="empty-text">Nessun trattamento registrato nel database per questa cliente.</p>
-                  <button className="btn btn-secondary btn-sm" onClick={() => setIsTreatmentModalOpen(true)}>
+                  <button className="btn btn-secondary btn-sm" onClick={() => { setIsTreatmentModalOpen(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
                     Aggiungi il primo trattamento ora
                   </button>
                 </div>
@@ -304,8 +308,8 @@ export default function ClientCRM({
                 <input 
                   type="text" 
                   className="form-input" 
-                  value={newClientName} 
-                  onChange={(e) => setNewClientName(e.target.value)} 
+                  value={newClientForm.name} 
+                  onChange={setClientField('name')} 
                   placeholder="es. Francesca Neri"
                   required 
                 />
@@ -317,8 +321,8 @@ export default function ClientCRM({
                   <input 
                     type="tel" 
                     className="form-input" 
-                    value={newClientPhone} 
-                    onChange={(e) => setNewClientPhone(e.target.value)} 
+                    value={newClientForm.phone} 
+                    onChange={setClientField('phone')} 
                     placeholder="es. 345 123 4567"
                     required 
                   />
@@ -328,8 +332,8 @@ export default function ClientCRM({
                   <input 
                     type="date" 
                     className="form-input" 
-                    value={newClientBirthday} 
-                    onChange={(e) => setNewClientBirthday(e.target.value)} 
+                    value={newClientForm.birthday} 
+                    onChange={setClientField('birthday')} 
                   />
                 </div>
               </div>
@@ -340,8 +344,8 @@ export default function ClientCRM({
                   <input 
                     type="email" 
                     className="form-input" 
-                    value={newClientEmail} 
-                    onChange={(e) => setNewClientEmail(e.target.value)} 
+                    value={newClientForm.email} 
+                    onChange={setClientField('email')} 
                     placeholder="es. francesca@email.it"
                   />
                 </div>
@@ -349,8 +353,8 @@ export default function ClientCRM({
                   <label className="form-label">Tipo Pelle</label>
                   <select 
                     className="form-select" 
-                    value={newClientSkinType} 
-                    onChange={(e) => setNewClientSkinType(e.target.value)}
+                    value={newClientForm.skinType} 
+                    onChange={setClientField('skinType')}
                   >
                     <option value="Mista">Mista</option>
                     <option value="Secca">Secca</option>
@@ -367,8 +371,8 @@ export default function ClientCRM({
                 <input 
                   type="text" 
                   className="form-input text-danger-input" 
-                  value={newClientAllergies} 
-                  onChange={(e) => setNewClientAllergies(e.target.value)} 
+                  value={newClientForm.allergies} 
+                  onChange={setClientField('allergies')} 
                   placeholder="es. Nichel, Acrilati, Acido Glicolico. Scrivere 'Nessuna' se vuoto."
                 />
               </div>
@@ -377,8 +381,8 @@ export default function ClientCRM({
                 <label className="form-label">Preferenze del cliente (Forma unghie, temperature, massaggio...)</label>
                 <textarea 
                   className="form-textarea" 
-                  value={newClientNotes} 
-                  onChange={(e) => setNewClientNotes(e.target.value)} 
+                  value={newClientForm.notes} 
+                  onChange={setClientField('notes')} 
                   placeholder="es. Preferisce limatura stondata, smalti chiari n. 42. Soffre di cervicale durante il lavaggio."
                 />
               </div>
@@ -492,10 +496,28 @@ export default function ClientCRM({
           }
         }
 
+        .back-to-list-btn {
+          display: none;
+        }
+
         @media (max-width: 768px) {
           .crm-container {
             grid-template-columns: 1fr;
-            height: auto;
+            height: calc(100vh - 120px);
+          }
+          .crm-sidebar {
+            display: flex;
+            height: 100%;
+          }
+          .crm-dossier {
+            display: none;
+            height: 100%;
+          }
+          .crm-container.show-dossier .crm-sidebar {
+            display: none;
+          }
+          .crm-container.show-dossier .crm-dossier {
+            display: block;
           }
         }
 
@@ -664,6 +686,36 @@ export default function ClientCRM({
           display: flex;
           align-items: center;
           gap: 1.25rem;
+        }
+
+        @media (max-width: 640px) {
+          .dossier-title-row {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 1rem;
+            align-items: center;
+          }
+          .back-to-list-btn {
+            display: inline-flex;
+            grid-column: 1 / -1;
+            grid-row: 1;
+            width: 100%;
+            margin-bottom: 0.25rem;
+          }
+          .dossier-avatar-large {
+            grid-column: 1;
+            grid-row: 2;
+          }
+          .dossier-name-details {
+            grid-column: 2;
+            grid-row: 2;
+          }
+          .dossier-title-row .btn-primary {
+            grid-column: 1 / -1;
+            grid-row: 3;
+            width: 100%;
+            justify-content: center;
+          }
         }
 
         .dossier-avatar-large {
