@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PlusCircle } from 'lucide-react';
-import { MOCK_TODAY } from '../../core/data/constants';
+import { getTodayDateString } from '../../core/data/constants';
 import { useClients } from '../../core/context/ClientsContext';
 import { useCatalog } from '../../core/context/CatalogContext';
 import { useSalon } from '../../core/context/SalonContext';
@@ -29,10 +29,29 @@ export default function CalendarView({
   const endHour = 20;  // 20:00 (grid goes up to 20:00)
 
   // Generate date options
+  const d1 = new Date();
+  const tomorrow = new Date(d1);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const nextDay = new Date(d1);
+  nextDay.setDate(nextDay.getDate() + 2);
+
+  const formatDateString = (d) => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const formatTabDate = (d) => {
+    const str = new Intl.DateTimeFormat('it-IT', { weekday: 'long', day: 'numeric', month: 'short' }).format(d);
+    // Remove period at the end if present (some browsers add it for short month)
+    return str.replace(/\.$/, '').replace(/^\w/, c => c.toUpperCase());
+  };
+
   const dates = [
-    { label: 'Oggi (5 Giu)', value: MOCK_TODAY },
-    { label: 'Domani (6 Giu)', value: '2026-06-06' },
-    { label: 'Lunedì (8 Giu)', value: '2026-06-08' }
+    { label: `Oggi (${formatTabDate(d1)})`, value: formatDateString(d1) },
+    { label: `Domani (${formatTabDate(tomorrow)})`, value: formatDateString(tomorrow) },
+    { label: `${formatTabDate(nextDay)}`, value: formatDateString(nextDay) }
   ];
 
   return (
@@ -53,6 +72,22 @@ export default function CalendarView({
                 {d.label}
               </button>
             ))}
+            <input 
+              type="date" 
+              className="date-tab-input" 
+              value={selectedDate} 
+              onChange={(e) => setSelectedDate(e.target.value)}
+              style={{
+                background: 'var(--bg-card)',
+                color: 'var(--text-primary)',
+                border: '1px solid var(--border-light)',
+                borderRadius: 'var(--radius-full)',
+                padding: '0.5rem 1rem',
+                outline: 'none',
+                cursor: 'pointer',
+                fontFamily: 'inherit'
+              }}
+            />
           </div>
           <button className="btn btn-primary" onClick={() => openModal('NEW_APPOINTMENT', { date: selectedDate })}>
             <PlusCircle size={18} />

@@ -59,14 +59,33 @@ export function ClientsProvider({ children }) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['clients'] })
   });
 
+  const deleteClientMutation = useMutation({
+    mutationFn: async (clientId) => {
+      const { error } = await supabase.from('clients').delete().eq('id', clientId);
+      if (error) throw error;
+      return clientId;
+    },
+    onSuccess: (deletedId) => {
+      queryClient.setQueryData(['clients'], (old) => {
+        return old ? old.filter(c => c.id !== deletedId) : [];
+      });
+      queryClient.invalidateQueries({ queryKey: ['clients'] });
+      // Invalidate appointments/revenue too, since cascade delete affects them
+      queryClient.invalidateQueries({ queryKey: ['appointments'] });
+      queryClient.invalidateQueries({ queryKey: ['revenueHistory'] });
+    }
+  });
+
   const addClient = (newClient) => addClientMutation.mutateAsync(newClient);
   const addTreatmentRecord = (clientId, record) => addTreatmentRecordMutation.mutateAsync({ clientId, record });
+  const deleteClient = (clientId) => deleteClientMutation.mutateAsync(clientId);
 
   return (
     <ClientsContext.Provider value={{ 
       clients: clients || [], 
       addClient, 
       addTreatmentRecord,
+      deleteClient,
       isLoading: clientsLoading
     }}>
       {children}

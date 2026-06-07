@@ -45,6 +45,7 @@ export default function ClientCRM() {
       <ClientDossier 
         client={client}
         setShowDossierMobile={setShowDossierMobile}
+        setSelectedClientId={setSelectedClientId}
       />
     </div>
   );

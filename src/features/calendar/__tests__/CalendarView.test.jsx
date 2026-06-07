@@ -5,9 +5,10 @@ import CalendarView from '../CalendarView';
 import { MOCK_TODAY } from '../../../core/data/constants';
 
 // Mock contexts
-vi.mock('../../../core/context/AppointmentsContext', () => ({
-  useAppointments: () => ({
-    appointments: [
+vi.mock('../hooks/useCalendarAppointments', () => ({
+  useCalendarAppointments: () => ({
+    appointments: [],
+    dateAppointments: [
       {
         id: '1',
         clientId: 'c1',
@@ -16,7 +17,7 @@ vi.mock('../../../core/context/AppointmentsContext', () => ({
         serviceName: 'Taglio',
         operatorId: 'o1',
         operatorName: 'Anna',
-        date: MOCK_TODAY,
+        date: '2026-06-07',
         time: '10:00',
         duration: 30,
         buffer: 10,
@@ -25,6 +26,8 @@ vi.mock('../../../core/context/AppointmentsContext', () => ({
       }
     ],
     addAppointment: vi.fn(),
+    selectedDate: '2026-06-07',
+    setSelectedDate: vi.fn(),
   }),
 }));
 
@@ -43,6 +46,15 @@ vi.mock('../../../core/context/CatalogContext', () => ({
 vi.mock('../../../core/context/SalonContext', () => ({
   useSalon: () => ({
     staff: [{ id: 'o1', name: 'Anna', role: 'Parrucchiera' }],
+  }),
+}));
+
+const mockOpenModal = vi.fn();
+
+vi.mock('../../../core/context/ModalContext', () => ({
+  useModal: () => ({
+    openModal: mockOpenModal,
+    closeModal: vi.fn(),
   }),
 }));
 
@@ -67,6 +79,6 @@ describe('CalendarView', () => {
     const addButton = screen.getByText('Nuova Prenotazione');
     fireEvent.click(addButton);
     
-    expect(screen.getByText('Nuova Prenotazione Appuntamento')).toBeTruthy();
+    expect(mockOpenModal).toHaveBeenCalledWith('NEW_APPOINTMENT', expect.any(Object));
   });
 });

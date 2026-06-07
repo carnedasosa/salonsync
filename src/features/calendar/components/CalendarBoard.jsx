@@ -77,22 +77,22 @@ export default function CalendarBoard({ staff, dateAppointments, services, start
                       
                       {/* Status indicators and quick complete action */}
                       <div className="event-footer">
-                        {app.status === AppointmentStatus.CONFIRMED ? (
-                          <button 
-                            className="event-complete-action" 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onUpdateAppointmentStatus(app.id, 'completed');
-                            }}
-                            title="Segna come completato"
-                          >
-                            ✓ Completa
-                          </button>
-                        ) : (
-                          <span className={`event-status-tag ${app.status}`}>
-                            {app.status === AppointmentStatus.COMPLETED ? 'Eseguito' : 'No-show'}
-                          </span>
-                        )}
+                        <select 
+                          className={`event-status-tag ${app.status}`}
+                          value={app.status}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            onUpdateAppointmentStatus(app.id, e.target.value);
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                          style={{ border: 'none', outline: 'none', cursor: 'pointer', appearance: 'auto', backgroundColor: 'transparent' }}
+                        >
+                          <option value={AppointmentStatus.PENDING}>In attesa</option>
+                          <option value={AppointmentStatus.CONFIRMED}>Confermato</option>
+                          <option value={AppointmentStatus.COMPLETED}>Eseguito</option>
+                          <option value={AppointmentStatus.NO_SHOW}>No-show</option>
+                          <option value={AppointmentStatus.CANCELLED}>Cancellato</option>
+                        </select>
                         <span className="event-price">€{app.price}</span>
                       </div>
                     </div>

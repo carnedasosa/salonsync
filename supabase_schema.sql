@@ -103,3 +103,19 @@ ALTER TABLE public.services DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.products DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.appointments DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.treatments_history DISABLE ROW LEVEL SECURITY;
+
+-- 8. Vista per lo Storico Fatturato (Monthly Revenue)
+CREATE OR REPLACE VIEW public.monthly_revenue AS
+SELECT 
+    to_char(date::date, 'YYYY-MM') as month_key,
+    SUM(price) as revenue,
+    COUNT(*) as appointments
+FROM 
+    public.appointments
+WHERE 
+    status = 'completed'
+GROUP BY 
+    to_char(date::date, 'YYYY-MM')
+ORDER BY 
+    to_char(date::date, 'YYYY-MM');
+

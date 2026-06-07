@@ -285,6 +285,21 @@
   background: var(--danger-glow);
 }
 
+.status-badge-inline.pending {
+  color: var(--warning);
+  background: rgba(245, 158, 11, 0.15);
+}
+
+.status-badge-inline.confirmed {
+  color: var(--info);
+  background: rgba(59, 130, 246, 0.15);
+}
+
+.status-badge-inline.cancelled {
+  color: var(--text-muted);
+  background: rgba(100, 116, 139, 0.15);
+}
+
 /* Right Column layout */
 .right-dashboard-col {
   display: flex;

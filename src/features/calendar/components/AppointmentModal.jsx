@@ -7,7 +7,7 @@ import { useCatalog } from '../../../core/context/CatalogContext';
 import { useSalon } from '../../../core/context/SalonContext';
 import { useAppointments } from '../../../core/context/AppointmentsContext';
 import { useModal } from '../../../core/context/ModalContext';
-import { MOCK_TODAY } from '../../../core/data/constants';
+import { getTodayDateString } from '../../../core/data/constants';
 
 export default function AppointmentModal({
   date,
@@ -20,7 +20,8 @@ export default function AppointmentModal({
   const { appointments, addAppointment } = useAppointments();
   const { closeModal } = useModal();
 
-  const selectedDate = date || MOCK_TODAY;
+  const initialDate = date || getTodayDateString();
+  const [selectedDate, setSelectedDate] = useState(initialDate);
 
   const [clientId, setClientId] = useState('');
   const [serviceId, setServiceId] = useState('');
@@ -28,7 +29,7 @@ export default function AppointmentModal({
   const [time, setTime] = useState('09:00');
   const [validationError, setValidationError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setValidationError('');
 
@@ -77,8 +78,13 @@ export default function AppointmentModal({
       status: AppointmentStatus.CONFIRMED
     };
 
-    addAppointment(newAppointment);
-    closeModal();
+    try {
+      await addAppointment(newAppointment);
+      closeModal();
+    } catch (err) {
+      console.error(err);
+      setValidationError('Errore durante il salvataggio: ' + (err.message || 'Riprova più tardi.'));
+    }
   };
 
   return (
@@ -97,21 +103,43 @@ export default function AppointmentModal({
             </div>
           )}
 
-          <div className="form-group">
-            <label className="form-label">Seleziona Cliente</label>
-            <select 
-              className="form-select"
-              value={clientId}
-              onChange={(e) => setClientId(e.target.value)}
-              required
-            >
-              <option value="">-- Scegli un cliente --</option>
-              {clients.map(c => (
-                <option key={c.id} value={c.id}>
-                  {c.name} {c.allergies ? `(⚠️ Allergie: ${c.allergies})` : ''}
-                </option>
-              ))}
-            </select>
+          <div className="form-row-2col">
+            <div className="form-group">
+              <label className="form-label">Seleziona Cliente</label>
+              <select 
+                className="form-select"
+                value={clientId}
+                onChange={(e) => setClientId(e.target.value)}
+                required
+              >
+                <option value="">-- Scegli un cliente --</option>
+                {clients.map(c => (
+                  <option key={c.id} value={c.id}>
+                    {c.name} {c.allergies ? `(⚠️ Allergie: ${c.allergies})` : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Data Appuntamento</label>
+              <input 
+                type="date"
+                className="form-control"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                required
+                style={{
+                  background: 'var(--bg-elevated)',
+                  border: '1px solid var(--border-light)',
+                  borderRadius: 'var(--radius-md)',
+                  padding: '0.75rem 1rem',
+                  color: 'var(--text-primary)',
+                  fontFamily: 'inherit',
+                  width: '100%'
+                }}
+              />
+            </div>
           </div>
 
           <div className="form-group">

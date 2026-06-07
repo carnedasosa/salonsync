@@ -6,7 +6,6 @@
 import React, { createContext, useContext } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../supabaseClient';
-import { mockAppointments, mockRevenueHistory } from '../data/mockData';
 
 const AppointmentsContext = createContext(null);
 
@@ -23,27 +22,59 @@ export function AppointmentsProvider({ children }) {
     }
   });
 
-  // Per il momento manteniamo la history dei ricavi mockata, 
-  // in futuro verrà calcolata con una View SQL su Supabase
-  const revenueHistory = mockRevenueHistory;
+  // Fetch Revenue History da View SQL Supabase
+  const { data: rawRevenueHistory, isLoading: revenueLoading } = useQuery({
+    queryKey: ['revenueHistory'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('monthly_revenue').select('*');
+      if (error) throw error;
+      
+      return data.map(item => {
+        const d = new Date(item.month_key + '-01');
+        const monthName = new Intl.DateTimeFormat('it-IT', { month: 'short' }).format(d);
+        // Formatta in Gen, Feb, Mar ecc.
+        const capitalizedMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+        
+        return {
+          month: capitalizedMonth,
+          revenue: Number(item.revenue),
+          appointments: Number(item.appointments)
+        };
+      });
+    }
+  });
+
+  const revenueHistory = rawRevenueHistory || [];
 
   const addAppointmentMutation = useMutation({
     mutationFn: async (newApp) => {
       // Rimuove l'id generato localmente
-      const { id, price, ...appData } = newApp; 
+      const { id, ...appData } = newApp; 
       
-      const { error } = await supabase.from('appointments').insert([appData]);
+      const { data, error } = await supabase.from('appointments').insert([appData]).select();
       if (error) throw error;
+      return data[0];
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['appointments'] })
+    onSuccess: (insertedApp) => {
+      queryClient.setQueryData(['appointments'], (old) => {
+        return old ? [insertedApp, ...old] : [insertedApp];
+      });
+      queryClient.invalidateQueries({ queryKey: ['revenueHistory'] });
+    }
   });
 
   const updateAppointmentStatusMutation = useMutation({
     mutationFn: async ({ appId, newStatus }) => {
-      const { error } = await supabase.from('appointments').update({ status: newStatus }).eq('id', appId);
+      const { data, error } = await supabase.from('appointments').update({ status: newStatus }).eq('id', appId).select();
       if (error) throw error;
+      return data[0];
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['appointments'] })
+    onSuccess: (updatedApp) => {
+      queryClient.setQueryData(['appointments'], (old) => {
+        return old ? old.map(app => app.id === updatedApp.id ? updatedApp : app) : [];
+      });
+      queryClient.invalidateQueries({ queryKey: ['revenueHistory'] });
+    }
   });
 
   const addAppointment = (newApp) => addAppointmentMutation.mutateAsync(newApp);

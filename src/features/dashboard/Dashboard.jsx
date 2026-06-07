@@ -1,6 +1,6 @@
 import React from 'react';
 import { PlusCircle, UserPlus } from 'lucide-react';
-import { MOCK_TODAY } from '../../core/data/constants';
+import { getTodayDateString } from '../../core/data/constants';
 import { useDashboardStats } from './hooks/useDashboardStats';
 import KpiGrid from './components/KpiGrid';
 import AppointmentsTimeline from './components/AppointmentsTimeline';
@@ -18,17 +18,26 @@ export default function Dashboard({
     completedToday,
     todayRevenue,
     activeClientsCount,
+    newClientsThisMonth,
     lowStockProducts,
     maxRevenue,
     revenueHistory
-  } = useDashboardStats(MOCK_TODAY);
+  } = useDashboardStats(getTodayDateString());
+
+  const formattedDate = new Intl.DateTimeFormat('it-IT', { 
+    weekday: 'long', 
+    day: 'numeric', 
+    month: 'long', 
+    year: 'numeric' 
+  }).format(new Date());
+  const displayDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
 
   return (
     <div className="dashboard-wrapper animate-fade-in">
       <header className="dashboard-header">
         <div>
           <h1 className="gradient-text">Ciao, Aurora 👋</h1>
-          <p className="subtitle">Ecco come sta andando il tuo salone oggi, Venerdì 5 Giugno 2026.</p>
+          <p className="subtitle">Ecco come sta andando il tuo salone oggi, {displayDate}.</p>
         </div>
         <div className="quick-actions">
           <button className="btn btn-primary" onClick={() => openModal('NEW_APPOINTMENT')}>
@@ -48,6 +57,7 @@ export default function Dashboard({
         todayAppointmentsCount={todayAppointments.length}
         completedTodayCount={completedToday.length}
         activeClientsCount={activeClientsCount}
+        newClientsThisMonth={newClientsThisMonth}
         lowStockProductsCount={lowStockProducts.length}
       />
 

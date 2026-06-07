@@ -263,6 +263,18 @@
   color: var(--danger);
 }
 
+.event-status-tag.pending {
+  color: var(--warning);
+}
+
+.event-status-tag.confirmed {
+  color: var(--info);
+}
+
+.event-status-tag.cancelled {
+  color: var(--text-muted);
+}
+
 .event-price {
   font-weight: 700;
   color: var(--text-main);

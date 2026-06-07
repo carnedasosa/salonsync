@@ -2,16 +2,23 @@
 // Centralised constants — import these instead of using raw strings or hardcoded values.
 
 /**
- * The mock "today" date used throughout the app in place of a real dynamic date.
- * Change this in one place to update the whole app.
+ * Utility function to get the current date in YYYY-MM-DD format.
+ * Replaces the old MOCK_TODAY constant.
  */
-export const MOCK_TODAY = '2026-06-05';
+export const getTodayDateString = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
 
 /**
  * Appointment status enum — use these constants instead of raw strings
  * to avoid silent typo bugs.
  */
 export const AppointmentStatus = {
+  PENDING: 'pending',
   CONFIRMED: 'confirmed',
   COMPLETED: 'completed',
   NO_SHOW: 'no-show',

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Calendar, TrendingUp, Users, AlertCircle } from 'lucide-react';
 
-export default function KpiGrid({ todayRevenue, todayAppointmentsCount, completedTodayCount, activeClientsCount, lowStockProductsCount }) {
+export default function KpiGrid({ todayRevenue, todayAppointmentsCount, completedTodayCount, activeClientsCount, newClientsThisMonth, lowStockProductsCount }) {
   return (
     <section className="kpi-grid">
       <div className="glass-card kpi-card">
@@ -33,7 +33,9 @@ export default function KpiGrid({ todayRevenue, todayAppointmentsCount, complete
         <div className="kpi-data">
           <p className="kpi-label">Clienti Attivi</p>
           <p className="kpi-value">{activeClientsCount}</p>
-          <p className="kpi-change positive">+4 questo mese</p>
+          <p className={`kpi-change ${newClientsThisMonth > 0 ? 'positive' : ''}`}>
+            {newClientsThisMonth > 0 ? `+${newClientsThisMonth} questo mese` : '0 questo mese'}
+          </p>
         </div>
       </div>
 

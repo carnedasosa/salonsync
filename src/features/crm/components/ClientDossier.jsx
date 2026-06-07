@@ -1,9 +1,23 @@
 import React from 'react';
-import { Plus, ShieldAlert, FileText } from 'lucide-react';
+import { Plus, ShieldAlert, FileText, Trash2 } from 'lucide-react';
 import { useModal } from '../../../core/context/ModalContext';
+import { useClients } from '../../../core/context/ClientsContext';
 
-export default function ClientDossier({ client, setShowDossierMobile }) {
+export default function ClientDossier({ client, setShowDossierMobile, setSelectedClientId }) {
   const { openModal } = useModal();
+  const { deleteClient } = useClients();
+
+  const handleDelete = async () => {
+    if (window.confirm("Sei sicuro di voler eliminare definitivamente questo cliente e tutto il suo storico trattamenti? Questa azione non può essere annullata.")) {
+      try {
+        await deleteClient(client.id);
+        setSelectedClientId(null);
+        setShowDossierMobile(false);
+      } catch (err) {
+        alert("Errore durante l'eliminazione: " + err.message);
+      }
+    }
+  };
   if (!client) {
     return (
       <section className="crm-dossier">
@@ -31,10 +45,20 @@ export default function ClientDossier({ client, setShowDossierMobile }) {
               <h2>{client.name}</h2>
               <p className="subtitle">Cliente registrata • Data di nascita: {client.birthday}</p>
             </div>
-            <button className="btn btn-primary" onClick={() => openModal('TREATMENT_RECORD', { client })}>
-              <Plus size={18} />
-              <span>Log Trattamento Eseguito</span>
-            </button>
+            <div className="dossier-actions" style={{ display: 'flex', gap: '0.5rem' }}>
+              <button className="btn btn-primary" onClick={() => openModal('TREATMENT_RECORD', { client })}>
+                <Plus size={18} />
+                <span>Log Trattamento Eseguito</span>
+              </button>
+              <button 
+                className="btn btn-secondary" 
+                onClick={handleDelete}
+                style={{ color: 'var(--danger)', borderColor: 'var(--danger-light)', background: 'rgba(239, 68, 68, 0.05)' }}
+                title="Elimina Cliente"
+              >
+                <Trash2 size={18} />
+              </button>
+            </div>
           </div>
 
           {/* Allergy Warning Glass Banner (If any allergies exist) */}

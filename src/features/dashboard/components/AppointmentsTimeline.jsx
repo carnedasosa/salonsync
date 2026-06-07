@@ -35,20 +35,19 @@ export default function AppointmentsTimeline({ appointments, onUpdateAppointment
                     <span className="app-price">€{app.price}</span>
                   </div>
                   <div className="app-status-actions">
-                    {app.status === AppointmentStatus.CONFIRMED ? (
-                      <button 
-                        className="status-action-btn complete-btn" 
-                        title="Segna come completato"
-                        onClick={() => onUpdateAppointmentStatus(app.id, AppointmentStatus.COMPLETED)}
-                      >
-                        <CheckCircle size={16} />
-                        <span>Completa</span>
-                      </button>
-                    ) : (
-                      <span className={`status-badge-inline ${app.status}`}>
-                        {app.status === AppointmentStatus.COMPLETED ? 'Completato' : 'No-show'}
-                      </span>
-                    )}
+                    <select 
+                      className={`status-select status-badge-inline ${app.status}`}
+                      value={app.status}
+                      onChange={(e) => onUpdateAppointmentStatus(app.id, e.target.value)}
+                      onClick={(e) => e.stopPropagation()}
+                      style={{ border: 'none', outline: 'none', cursor: 'pointer', appearance: 'auto' }}
+                    >
+                      <option value={AppointmentStatus.PENDING}>In attesa</option>
+                      <option value={AppointmentStatus.CONFIRMED}>Confermato</option>
+                      <option value={AppointmentStatus.COMPLETED}>Completato</option>
+                      <option value={AppointmentStatus.NO_SHOW}>No-show</option>
+                      <option value={AppointmentStatus.CANCELLED}>Cancellato</option>
+                    </select>
                   </div>
                 </div>
               </div>
