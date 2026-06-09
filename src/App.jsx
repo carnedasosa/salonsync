@@ -13,14 +13,20 @@
  * AppLayout ha accesso a tutti i context tramite hook.
  */
 import React from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
 import { SalonProvider } from './core/context/SalonContext';
 import { AppointmentsProvider } from './core/context/AppointmentsContext';
 import { ClientsProvider } from './core/context/ClientsContext';
 import { CatalogProvider } from './core/context/CatalogContext';
 import { ModalProvider } from './core/context/ModalContext';
+import { AuthProvider } from './core/context/AuthContext';
+
 import AppLayout from './core/layout/AppLayout';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import ProtectedRoute from './core/layout/ProtectedRoute';
+import AuthPage from './features/auth/AuthPage';
+import PaywallPage from './features/auth/PaywallPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -35,17 +41,27 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <SalonProvider>
-          <CatalogProvider>
-            <ClientsProvider>
-              <AppointmentsProvider>
-                <ModalProvider>
-                  <AppLayout />
-                </ModalProvider>
-              </AppointmentsProvider>
-            </ClientsProvider>
-          </CatalogProvider>
-        </SalonProvider>
+        <AuthProvider>
+          <SalonProvider>
+            <CatalogProvider>
+              <ClientsProvider>
+                <AppointmentsProvider>
+                  <ModalProvider>
+                    <Routes>
+                      <Route path="/auth" element={<AuthPage />} />
+                      <Route path="/paywall" element={<PaywallPage />} />
+                      <Route path="/*" element={
+                        <ProtectedRoute>
+                          <AppLayout />
+                        </ProtectedRoute>
+                      } />
+                    </Routes>
+                  </ModalProvider>
+                </AppointmentsProvider>
+              </ClientsProvider>
+            </CatalogProvider>
+          </SalonProvider>
+        </AuthProvider>
       </BrowserRouter>
     </QueryClientProvider>
   );
