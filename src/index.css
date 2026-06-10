@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
 
 :root {
   /* salonSync Design System - Soft UI Evolution */
@@ -112,7 +112,7 @@ h1, h2, h3, h4, h5, h6 {
   .main-content {
     margin-left: 0;
     padding: 1rem;
-    padding-top: 5rem; /* Space for mobile menu */
+    padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 1rem)); /* Space for bottom mobile menu */
   }
 }
 
@@ -409,3 +409,5 @@ h1, h2, h3, h4, h5, h6 {
   background: var(--accent-primary);
   color: white;
 }
+
+

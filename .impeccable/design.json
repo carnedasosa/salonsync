@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-06-09T14:50:00Z",
+  "title": "Design System: salonSync",
+  "extensions": {
+    "colorMeta": {
+      "primary": { "role": "primary", "displayName": "Black / Slate 900", "canonical": "#0f172a" },
+      "primary-deep": { "role": "primary", "displayName": "Deep Black", "canonical": "#000000" },
+      "neutral-bg": { "role": "neutral", "displayName": "Slate 50 Bg", "canonical": "#f8fafc" },
+      "text-main": { "role": "neutral", "displayName": "Black Text", "canonical": "#0f172a" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display Serif", "purpose": "Titoli principali." },
+      "body": { "displayName": "Body Sans", "purpose": "Contenuto principale, form, tabelle." }
+    },
+    "shadows": [
+      { "name": "Main Float", "value": "0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03)", "purpose": "Sospensione per le card." }
+    ],
+    "motion": [
+      { "name": "ease-snappy", "value": "ease-out", "purpose": "Reazioni veloci e precise sui bottoni." }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Azione principale brillante e responsiva.",
+      "html": "<button class=\"ds-btn-primary\">PRENOTA ORA</button>",
+      "css": ".ds-btn-primary { background: #0f172a; color: #ffffff; padding: 12px 20px; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.95rem; border-radius: 12px; border: 1px solid transparent; cursor: pointer; transition: all 0.2s ease-out; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); } .ds-btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 10px -2px rgba(0, 0, 0, 0.15); background: #1e293b; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Pulsante di vetro opaco per azioni di supporto.",
+      "html": "<button class=\"ds-btn-secondary\">ANNULLA</button>",
+      "css": ".ds-btn-secondary { background: rgba(255, 255, 255, 0.8); color: #0f172a; padding: 12px 20px; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.95rem; border-radius: 12px; border: 1px solid #cbd5e1; cursor: pointer; transition: all 0.2s ease-out; box-shadow: 0 2px 5px rgba(0,0,0,0.05); } .ds-btn-secondary:hover { background: #f8fafc; border-color: #94a3b8; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }"
+    },
+    {
+      "name": "Status Badge",
+      "kind": "chip",
+      "refersTo": "badge-success",
+      "description": "Tag per indicare lo stato di un appuntamento.",
+      "html": "<span class=\"ds-badge ds-badge-success\">CONFERMATO</span>",
+      "css": ".ds-badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; font-family: 'Inter', sans-serif; } .ds-badge-success { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Minimalist Salon",
+    "overview": "Questo design system si basa sull'estrema chiarezza operativa e sulla riduzione assoluta del rumore visivo. L'ambiente è dominato da tanto spazio bianco e superfici vetrate, dove il colore interviene solo per guidare l'attenzione sui dati essenziali o sulle azioni primarie. Rifugge categoricamente le interfacce affollate tipiche dei gestionali legacy, prediligendo un approccio arioso, professionale e chirurgicamente preciso.",
+    "keyCharacteristics": [
+      "Estrema pulizia visiva e ampio uso di spazio negativo.",
+      "Focus chirurgico: le interazioni sono precise e reattive.",
+      "Sospeso e arioso: uso di ombre tenui e glassmorphism leggero."
+    ],
+    "rules": [
+      { "name": "The Focus Rule", "body": "Il colore deciso (nero/antracite) va usato esclusivamente dove serve l'azione dell'utente o per evidenziare i dati chiave. Il resto è spazio vuoto o vetro.", "section": "colors" },
+      { "name": "The Functional Serif Rule", "body": "Il serif (Playfair) si usa solo ed esclusivamente per grandi intestazioni (h1-h6). Tutto il testo operativo, i bottoni e i dati devono utilizzare il font sans-serif (Inter).", "section": "typography" },
+      { "name": "The Float Rule", "body": "Gli elementi interattivi (card, modal) si sollevano ulteriormente sull'hover, non si schiacciano verso il basso.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do usare ampi margini vuoti per separare le sezioni; lascia respirare i dati.",
+      "Do mantenere le ombre grigie e neutre. Un'ombra scura rovinerebbe la pulizia ariosa.",
+      "Do assicurarti che il contrasto del testo sui bottoni sia elevato."
+    ],
+    "donts": [
+      "Don't sovraccaricare la UI; nascondi o metti in secondo piano le funzionalità secondarie.",
+      "Don't usare gradienti colorati; la palette si fonda su bianchi, grigi e neri.",
+      "Don't utilizzare il font Serif (Playfair) per form, tabelle o piccoli bottoni; perderebbe in leggibilità e precisione."
+    ]
+  }
+}

@@ -283,3 +283,48 @@ Eseguire il comando di upload dei secrets: `npx supabase secrets set STRIPE_WEBH
 ### Regola di Prevenzione
 > ⚠️ **REGOLA:**
 > - Se `constructEvent` di Stripe lancia `"Key length is zero"`, **non è un problema di codice**, ma significa categoricamente che manca la chiave segreta del webhook (o è vuota). Verificare sempre il deploy dei secrets.
+
+---
+
+## 2026-06-10 — Mancanza di Affordance e ARIA Incompleta in Scroll Orizzontali
+
+**Agente responsabile:** The Architect (fase di pianificazione) / The Artist
+**Identificato da:** The Critic
+**Categoria:** Frontend / Accessibilità / UI/UX
+
+### Contesto
+Progettazione del componente `.date-selector-tabs` con scroll orizzontale nativo per mobile, nascondendo la scrollbar per motivi estetici.
+
+### Errore
+1. **Accessibilità (ARIA) incompleta**: L'uso di `role="tablist"` e `role="tab"` è stato proposto senza implementare la gestione del focus e la navigazione da tastiera, violando le WAI-ARIA.
+2. **Scorrimento e Visibilità**: Con lo scroll orizzontale, la data selezionata poteva trovarsi fuori viewport (invisibile all'utente) senza un auto-scroll che la riportasse al centro.
+3. **Affordance dello scorrimento**: Nascondendo la scrollbar nativa senza aggiungere cue visivi, l'utente perdeva la percezione che l'elemento fosse scrollabile.
+- **File:** `src/features/calendar/CalendarView.jsx`, `src/features/calendar/Calendar.css`
+
+### Soluzione
+Piano corretto per utilizzare ruoli ARIA meno esigenti (es. `role="group"` e `aria-pressed`) se non si vuole implementare il complex tab focus, per includere un `scrollIntoView` sull'elemento attivo tramite `useEffect`, e per aggiungere cue visivi (come il taglio parziale dell'ultimo elemento) per l'affordance.
+
+### Regola di Prevenzione
+> - Quando si implementano scroll orizzontali senza scrollbar nativa, è obbligatorio: 1) implementare l'auto-scroll all'elemento attivo (`scrollIntoView`), 2) garantire affordance visiva dello scroll (es. elementi parzialmente tagliati o edge gradient) e 3) supportare integralmente la navigazione da tastiera se si usano ruoli ARIA specifici (come `tablist`/`tab`), oppure fare un fallback a ruoli più semplici (`group`).
+
+---
+
+## 2026-06-10 — Difetto Layout: Padding Errato su Bottom Navbar
+
+**Agente responsabile:** The Artist
+**Identificato da:** The Critic
+**Categoria:** Frontend / UI/UX / Layout
+
+### Contesto
+Implementazione di una Bottom Navigation Bar mobile (fissata in basso) e adattamento del main content padding.
+
+### Errore
+1. **Padding di Compensazione Errato**: In `index.css`, è stato lasciato `padding-top: 5rem` su `.main-content`, sebbene la navbar fosse diventata una bottom bar (`bottom: 0`). Questo lasciava spazio vuoto in cima e nascondeva i contenuti in fondo sotto la barra di navigazione.
+- **File:** `src/index.css`
+
+### Soluzione
+Rimuovere `padding-top` e impostare un `padding-bottom` calcolato per includere sia l'altezza della navbar sia la safe area di iOS (`calc(5.5rem + env(safe-area-inset-bottom, 1rem))`).
+
+### Regola di Prevenzione
+> ⚠️ **REGOLA:**
+> - Assicurarsi che il padding di compensazione sul layout principale corrisponda sempre alla posizione della navbar mobile (top vs bottom). Se la navbar è posizionata `fixed` in basso, si deve utilizzare `padding-bottom` e **NON** `padding-top`, calcolandolo in modo da evitare che i contenuti finiscano sotto la UI di navigazione.

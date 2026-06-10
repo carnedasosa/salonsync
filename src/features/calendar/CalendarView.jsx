@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { PlusCircle } from 'lucide-react';
 import { getTodayDateString } from '../../core/data/constants';
 import { useClients } from '../../core/context/ClientsContext';
@@ -23,6 +23,18 @@ export default function CalendarView({
     selectedDate,
     setSelectedDate
   } = useCalendarAppointments();
+
+  const activeTabRef = useRef(null);
+
+  useEffect(() => {
+    if (activeTabRef.current) {
+      activeTabRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'center'
+      });
+    }
+  }, [selectedDate]);
 
   // Calendar parameters
   const startHour = 9; // 09:00
@@ -62,33 +74,47 @@ export default function CalendarView({
           <p className="subtitle">Visualizza gli appuntamenti divisi per cabina/operatrice.</p>
         </div>
         <div className="calendar-controls">
-          <div className="date-selector-tabs">
-            {dates.map(d => (
-              <button
-                key={d.value}
-                onClick={() => setSelectedDate(d.value)}
-                className={`date-tab ${selectedDate === d.value ? 'active' : ''}`}
-              >
-                {d.label}
-              </button>
-            ))}
-            <input 
-              type="date" 
-              className="date-tab-input" 
-              value={selectedDate} 
-              onChange={(e) => setSelectedDate(e.target.value)}
-              style={{
-                background: 'var(--bg-card)',
-                color: 'var(--text-primary)',
-                border: '1px solid var(--border-light)',
-                borderRadius: 'var(--radius-full)',
-                padding: '0.5rem 1rem',
-                outline: 'none',
-                cursor: 'pointer',
-                fontFamily: 'inherit'
-              }}
-            />
+          <div className="date-selection-wrapper">
+            <div 
+              className="date-selector-tabs"
+              role="group"
+              aria-label="Selezione data"
+            >
+              {dates.map(d => {
+                const isActive = selectedDate === d.value;
+                return (
+                  <button
+                    key={d.value}
+                    type="button"
+                    ref={isActive ? activeTabRef : null}
+                    aria-pressed={isActive}
+                    onClick={() => setSelectedDate(d.value)}
+                    className={`date-tab ${isActive ? 'active' : ''}`}
+                  >
+                    {d.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
+          <input 
+            type="date" 
+            className="date-tab-input" 
+            value={selectedDate} 
+            onChange={(e) => setSelectedDate(e.target.value)}
+            style={{
+              background: 'var(--bg-card)',
+              color: 'var(--text-primary)',
+              border: '1px solid var(--border-light)',
+              borderRadius: 'var(--radius-full)',
+              padding: '0.5rem 1rem',
+              outline: 'none',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+              height: '44px',
+              flexShrink: 0
+            }}
+          />
           <button className="btn btn-primary" onClick={() => openModal('NEW_APPOINTMENT', { date: selectedDate })}>
             <PlusCircle size={18} />
             <span>Nuova Prenotazione</span>
