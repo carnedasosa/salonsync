@@ -3,6 +3,7 @@ import { useClients } from '../../../core/context/ClientsContext';
 import { useModal } from '../../../core/context/ModalContext';
 import { useCatalog } from '../../../core/context/CatalogContext';
 import { useSalon } from '../../../core/context/SalonContext';
+import CustomSelect from '../../../shared/ui/CustomSelect';
 
 export function NewClientModal({ onSuccess }) {
   const { addClient } = useClients();
@@ -94,19 +95,21 @@ export function NewClientModal({ onSuccess }) {
               />
             </div>
             <div className="form-group">
-              <label className="form-label">Tipo Pelle</label>
-              <select 
-                className="form-select" 
-                value={newClientForm.skinType} 
-                onChange={setClientField('skinType')}
-              >
-                <option value="Mista">Mista</option>
-                <option value="Secca">Secca</option>
-                <option value="Grassa">Grassa</option>
-                <option value="Sensibile">Sensibile</option>
-                <option value="Matura">Matura</option>
-                <option value="Acneica">Acneica</option>
-              </select>
+              <label htmlFor="skin-type-select" className="form-label">Tipo Pelle</label>
+              <CustomSelect
+                id="skin-type-select"
+                value={newClientForm.skinType}
+                onChange={(val) => setNewClientForm(prev => ({ ...prev, skinType: val }))}
+                options={[
+                  { value: 'Mista', label: 'Mista' },
+                  { value: 'Secca', label: 'Secca' },
+                  { value: 'Grassa', label: 'Grassa' },
+                  { value: 'Sensibile', label: 'Sensibile' },
+                  { value: 'Matura', label: 'Matura' },
+                  { value: 'Acneica', label: 'Acneica' }
+                ]}
+                placeholder="-- Tipo di pelle --"
+              />
             </div>
           </div>
 
@@ -182,6 +185,16 @@ export function TreatmentRecordModal({ client }) {
     closeModal();
   };
 
+  const serviceOptions = services.map(s => ({
+    value: s.id,
+    label: `${s.name} (Retail €${s.price})`
+  }));
+
+  const operatorOptions = staff.map(st => ({
+    value: st.id,
+    label: st.name
+  }));
+
   return (
     <div className="modal-overlay">
       <div className="modal-content">
@@ -192,38 +205,30 @@ export function TreatmentRecordModal({ client }) {
 
         <form onSubmit={handleAddRecord}>
           <div className="form-group">
-            <label className="form-label">Trattamento Eseguito</label>
-            <select 
-              className="form-select" 
+            <label htmlFor="treat-service-select" className="form-label">Trattamento Eseguito</label>
+            <CustomSelect
+              id="treat-service-select"
               value={treatServiceId}
-              onChange={(e) => {
-                setTreatServiceId(e.target.value);
-                const selected = services.find(s => s.id === e.target.value);
+              onChange={(val) => {
+                setTreatServiceId(val);
+                const selected = services.find(s => s.id === val);
                 if (selected) setTreatPrice(selected.price);
               }}
-              required
-            >
-              <option value="">-- Scegli Trattamento --</option>
-              {services.map(s => (
-                <option key={s.id} value={s.id}>{s.name} (Retail €{s.price})</option>
-              ))}
-            </select>
+              options={serviceOptions}
+              placeholder="-- Scegli Trattamento --"
+            />
           </div>
 
           <div className="form-row-2col">
             <div className="form-group">
-              <label className="form-label">Eseguito da (Estetista)</label>
-              <select 
-                className="form-select" 
+              <label htmlFor="treat-operator-select" className="form-label">Eseguito da (Estetista)</label>
+              <CustomSelect
+                id="treat-operator-select"
                 value={treatOperatorId}
-                onChange={(e) => setTreatOperatorId(e.target.value)}
-                required
-              >
-                <option value="">-- Seleziona Operatrice --</option>
-                {staff.map(st => (
-                  <option key={st.id} value={st.id}>{st.name}</option>
-                ))}
-              </select>
+                onChange={setTreatOperatorId}
+                options={operatorOptions}
+                placeholder="-- Seleziona Operatrice --"
+              />
             </div>
             <div className="form-group">
               <label className="form-label">Prezzo Effettivo (€)</label>

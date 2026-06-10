@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useCatalog } from '../../../core/context/CatalogContext';
 import { useModal } from '../../../core/context/ModalContext';
+import CustomSelect from '../../../shared/ui/CustomSelect';
 
 export function NewServiceModal() {
   const { addService } = useCatalog();
@@ -56,17 +57,19 @@ export function NewServiceModal() {
 
           <div className="form-row-2col">
             <div className="form-group">
-              <label className="form-label">Categoria</label>
-              <select 
-                className="form-select"
+              <label htmlFor="service-category" className="form-label">Categoria</label>
+              <CustomSelect
+                id="service-category"
                 value={servCategory}
-                onChange={(e) => setServCategory(e.target.value)}
-              >
-                <option value="Unghie">Unghie</option>
-                <option value="Viso">Viso</option>
-                <option value="Corpo">Corpo</option>
-                <option value="Sguardo">Sguardo</option>
-              </select>
+                onChange={setServCategory}
+                options={[
+                  { value: 'Unghie', label: 'Unghie' },
+                  { value: 'Viso', label: 'Viso' },
+                  { value: 'Corpo', label: 'Corpo' },
+                  { value: 'Sguardo', label: 'Sguardo' }
+                ]}
+                placeholder="-- Categoria --"
+              />
             </div>
             <div className="form-group">
               <label className="form-label">Prezzo (€)</label>
@@ -170,17 +173,19 @@ export function NewProductModal() {
 
           <div className="form-row-2col">
             <div className="form-group">
-              <label className="form-label">Categoria</label>
-              <select 
-                className="form-select"
+              <label htmlFor="product-category" className="form-label">Categoria</label>
+              <CustomSelect
+                id="product-category"
                 value={prodCategory}
-                onChange={(e) => setProdCategory(e.target.value)}
-              >
-                <option value="Unghie">Unghie</option>
-                <option value="Viso">Viso</option>
-                <option value="Corpo">Corpo</option>
-                <option value="Sguardo">Sguardo</option>
-              </select>
+                onChange={setProdCategory}
+                options={[
+                  { value: 'Unghie', label: 'Unghie' },
+                  { value: 'Viso', label: 'Viso' },
+                  { value: 'Corpo', label: 'Corpo' },
+                  { value: 'Sguardo', label: 'Sguardo' }
+                ]}
+                placeholder="-- Categoria --"
+              />
             </div>
             <div className="form-group">
               <label className="form-label">Prezzo Vendita (€)</label>

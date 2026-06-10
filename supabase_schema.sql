@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS public.treatments_history;
+﻿DROP TABLE IF EXISTS public.treatments_history;
 DROP TABLE IF EXISTS public.appointments;
 DROP TABLE IF EXISTS public.products;
 DROP TABLE IF EXISTS public.services;
@@ -95,17 +95,16 @@ CREATE TABLE IF NOT EXISTS public.treatments_history (
     created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Disabilitiamo RLS per velocizzare lo sviluppo (NON in produzione!)
-ALTER TABLE public.salon_settings DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.staff DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.clients DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.services DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.products DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.appointments DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.treatments_history DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.salon_settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.staff ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.clients ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.services ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.appointments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.treatments_history ENABLE ROW LEVEL SECURITY;
 
 -- 8. Vista per lo Storico Fatturato (Monthly Revenue)
-CREATE OR REPLACE VIEW public.monthly_revenue AS
+CREATE OR REPLACE VIEW public.monthly_revenue WITH (security_invoker = on) AS
 SELECT 
     to_char(date::date, 'YYYY-MM') as month_key,
     SUM(price) as revenue,
@@ -118,4 +117,6 @@ GROUP BY
     to_char(date::date, 'YYYY-MM')
 ORDER BY 
     to_char(date::date, 'YYYY-MM');
+
+
 

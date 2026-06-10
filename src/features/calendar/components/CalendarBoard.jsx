@@ -2,6 +2,7 @@ import React from 'react';
 import { Clock } from 'lucide-react';
 import { AppointmentStatus } from '../../../core/data/constants';
 import { timeToMinutes } from '../calendarUtils';
+import CustomSelect from '../../../shared/ui/CustomSelect';
 
 export default function CalendarBoard({ staff, dateAppointments, services, startHour, endHour, onUpdateAppointmentStatus }) {
   const totalMinutes = (endHour - startHour) * 60;
@@ -76,23 +77,22 @@ export default function CalendarBoard({ staff, dateAppointments, services, start
                       <p className="event-service-name">{app.serviceName}</p>
                       
                       {/* Status indicators and quick complete action */}
-                      <div className="event-footer">
-                        <select 
-                          className={`event-status-tag ${app.status}`}
-                          value={app.status}
-                          onChange={(e) => {
-                            e.stopPropagation();
-                            onUpdateAppointmentStatus(app.id, e.target.value);
-                          }}
-                          onClick={(e) => e.stopPropagation()}
-                          style={{ border: 'none', outline: 'none', cursor: 'pointer', appearance: 'auto', backgroundColor: 'transparent' }}
-                        >
-                          <option value={AppointmentStatus.PENDING}>In attesa</option>
-                          <option value={AppointmentStatus.CONFIRMED}>Confermato</option>
-                          <option value={AppointmentStatus.COMPLETED}>Eseguito</option>
-                          <option value={AppointmentStatus.NO_SHOW}>No-show</option>
-                          <option value={AppointmentStatus.CANCELLED}>Cancellato</option>
-                        </select>
+                      <div className="event-footer" style={{ flex: 1, minWidth: 0, paddingRight: '0.5rem' }}>
+                        <div onClick={(e) => e.stopPropagation()}>
+                          <CustomSelect
+                            id={`status-select-${app.id}`}
+                            value={app.status}
+                            onChange={(val) => onUpdateAppointmentStatus(app.id, val)}
+                            options={[
+                              { value: AppointmentStatus.PENDING, label: 'In attesa' },
+                              { value: AppointmentStatus.CONFIRMED, label: 'Confermato' },
+                              { value: AppointmentStatus.COMPLETED, label: 'Eseguito' },
+                              { value: AppointmentStatus.NO_SHOW, label: 'No-show' },
+                              { value: AppointmentStatus.CANCELLED, label: 'Cancellato' }
+                            ]}
+                            placeholder="Stato"
+                          />
+                        </div>
                         <span className="event-price">€{app.price}</span>
                       </div>
                     </div>

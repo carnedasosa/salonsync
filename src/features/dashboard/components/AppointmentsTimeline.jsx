@@ -1,6 +1,7 @@
 import React from 'react';
 import { Clock, CheckCircle } from 'lucide-react';
 import { AppointmentStatus } from '../../../core/data/constants';
+import CustomSelect from '../../../shared/ui/CustomSelect';
 
 export default function AppointmentsTimeline({ appointments, onUpdateAppointmentStatus }) {
   return (
@@ -34,20 +35,22 @@ export default function AppointmentsTimeline({ appointments, onUpdateAppointment
                     </span>
                     <span className="app-price">€{app.price}</span>
                   </div>
-                  <div className="app-status-actions">
-                    <select 
-                      className={`status-select status-badge-inline ${app.status}`}
-                      value={app.status}
-                      onChange={(e) => onUpdateAppointmentStatus(app.id, e.target.value)}
-                      onClick={(e) => e.stopPropagation()}
-                      style={{ border: 'none', outline: 'none', cursor: 'pointer', appearance: 'auto' }}
-                    >
-                      <option value={AppointmentStatus.PENDING}>In attesa</option>
-                      <option value={AppointmentStatus.CONFIRMED}>Confermato</option>
-                      <option value={AppointmentStatus.COMPLETED}>Completato</option>
-                      <option value={AppointmentStatus.NO_SHOW}>No-show</option>
-                      <option value={AppointmentStatus.CANCELLED}>Cancellato</option>
-                    </select>
+                  <div className="app-status-actions" style={{ minWidth: '150px' }}>
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <CustomSelect
+                        id={`timeline-status-${app.id}`}
+                        value={app.status}
+                        onChange={(val) => onUpdateAppointmentStatus(app.id, val)}
+                        options={[
+                          { value: AppointmentStatus.PENDING, label: 'In attesa' },
+                          { value: AppointmentStatus.CONFIRMED, label: 'Confermato' },
+                          { value: AppointmentStatus.COMPLETED, label: 'Completato' },
+                          { value: AppointmentStatus.NO_SHOW, label: 'No-show' },
+                          { value: AppointmentStatus.CANCELLED, label: 'Cancellato' }
+                        ]}
+                        placeholder="Stato"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>

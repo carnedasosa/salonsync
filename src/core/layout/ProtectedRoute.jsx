@@ -16,8 +16,8 @@ export default function ProtectedRoute({ children }) {
   }
 
   // Se l'utente è loggato ma non ha uno status 'active', lo mandiamo al Paywall
-  // (es. 'pending' o se il profilo non è ancora caricato correttamente ma abbiamo una sessione)
-  if (profile && profile.status !== 'active') {
+  // Blocchiamo anche chi non ha alcun profilo (es. vecchi utenti creati prima del trigger)
+  if (!profile || profile.status !== 'active') {
     return <Navigate to="/paywall" replace />;
   }
 

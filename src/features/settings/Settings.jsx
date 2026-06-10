@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useSalon } from '../../core/context/SalonContext';
 import { Building, Users, Plus, Check, Trash2 } from 'lucide-react';
 import './Settings.css';
+import CustomSelect from '../../shared/ui/CustomSelect';
 
 // Palette di colori premium predefiniti per le operatrici
 const STAFF_COLORS = [
@@ -171,17 +172,20 @@ export default function Settings() {
                     />
                   </div>
                   <div className="form-group">
-                    <label>Ruolo</label>
-                    <select 
+                    <label htmlFor="staff-role-select">Ruolo</label>
+                    <CustomSelect
+                      id="staff-role-select"
                       value={newStaff.role}
-                      onChange={e => setNewStaff({...newStaff, role: e.target.value})}
-                    >
-                      <option value="Estetista">Estetista</option>
-                      <option value="Onicotecnica">Onicotecnica</option>
-                      <option value="Lash Maker">Lash Maker</option>
-                      <option value="Receptionist">Receptionist</option>
-                      <option value="Titolare">Titolare</option>
-                    </select>
+                      onChange={(val) => setNewStaff({...newStaff, role: val})}
+                      options={[
+                        { value: 'Estetista', label: 'Estetista' },
+                        { value: 'Onicotecnica', label: 'Onicotecnica' },
+                        { value: 'Lash Maker', label: 'Lash Maker' },
+                        { value: 'Receptionist', label: 'Receptionist' },
+                        { value: 'Titolare', label: 'Titolare' }
+                      ]}
+                      placeholder="-- Seleziona Ruolo --"
+                    />
                   </div>
                 </div>
                 

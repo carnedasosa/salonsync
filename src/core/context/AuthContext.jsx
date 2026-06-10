@@ -79,6 +79,12 @@ export function AuthProvider({ children }) {
     if (error) throw error;
   };
 
+  const refreshProfile = async () => {
+    if (user?.id) {
+      await fetchProfile(user.id);
+    }
+  };
+
   const value = {
     session,
     user,
@@ -86,6 +92,7 @@ export function AuthProvider({ children }) {
     login,
     signup,
     logout,
+    refreshProfile,
     loading
   };
 
@@ -103,5 +110,3 @@ export function useAuth() {
   }
   return context;
 }
-
-

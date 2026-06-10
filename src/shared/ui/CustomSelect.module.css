@@ -1,0 +1,101 @@
+.customSelectWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.selectTrigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  color: var(--text-main);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  transition: var(--transition);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+  cursor: pointer;
+  text-align: left;
+}
+
+.selectTrigger:focus,
+.selectTrigger.open {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.2), inset 0 2px 4px rgba(0,0,0,0.02);
+  background: #ffffff;
+}
+
+.selectValue {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: var(--text-sub);
+  transition: transform 0.3s ease;
+}
+
+.chevronUp {
+  transform: rotate(180deg);
+}
+
+.selectOptions {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 100%;
+  max-height: 250px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0.5rem;
+  list-style: none;
+  background: var(--bg-glass);
+  backdrop-filter: var(--blur-glass);
+  -webkit-backdrop-filter: var(--blur-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-main);
+  z-index: 50;
+  
+  /* Custom Scrollbar for dropdown */
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-secondary) transparent;
+}
+
+.selectOptions::-webkit-scrollbar {
+  width: 6px;
+}
+.selectOptions::-webkit-scrollbar-track {
+  background: transparent;
+}
+.selectOptions::-webkit-scrollbar-thumb {
+  background: var(--accent-secondary);
+  border-radius: var(--radius-sm);
+}
+
+.option {
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--text-main);
+  font-size: 0.95rem;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.option.active,
+.option:hover {
+  background: rgba(249, 168, 212, 0.15); /* Light pink tint */
+  color: var(--accent-deep);
+}
+
+.option.selected {
+  background: var(--accent-glow);
+  color: var(--accent-primary);
+  font-weight: 500;
+}

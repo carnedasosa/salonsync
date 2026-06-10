@@ -8,6 +8,7 @@ import { useSalon } from '../../../core/context/SalonContext';
 import { useAppointments } from '../../../core/context/AppointmentsContext';
 import { useModal } from '../../../core/context/ModalContext';
 import { getTodayDateString } from '../../../core/data/constants';
+import CustomSelect from '../../../shared/ui/CustomSelect';
 
 export default function AppointmentModal({
   date,
@@ -87,6 +88,29 @@ export default function AppointmentModal({
     }
   };
 
+  const clientOptions = clients.map(c => ({
+    value: c.id,
+    label: `${c.name} ${c.allergies ? `(⚠️ Allergie: ${c.allergies})` : ''}`
+  }));
+
+  const serviceOptions = services.map(s => ({
+    value: s.id,
+    label: `${s.name} - €${s.price} (${s.duration} min + ${s.buffer} min buffer)`
+  }));
+
+  const operatorOptions = staff.map(st => ({
+    value: st.id,
+    label: `${st.name} (${st.role})`
+  }));
+
+  const timeOptions = Array.from({ length: (endHour - startHour) * 4 }).map((_, i) => {
+    const mins = startHour * 60 + i * 15;
+    const hr = Math.floor(mins / 60);
+    const mn = mins % 60;
+    const timeString = `${String(hr).padStart(2, '0')}:${String(mn).padStart(2, '0')}`;
+    return { value: timeString, label: timeString };
+  });
+
   return (
     <div className="modal-overlay">
       <div className="modal-content">
@@ -105,20 +129,14 @@ export default function AppointmentModal({
 
           <div className="form-row-2col">
             <div className="form-group">
-              <label className="form-label">Seleziona Cliente</label>
-              <select 
-                className="form-select"
+              <label htmlFor="client-select" className="form-label">Seleziona Cliente</label>
+              <CustomSelect
+                id="client-select"
                 value={clientId}
-                onChange={(e) => setClientId(e.target.value)}
-                required
-              >
-                <option value="">-- Scegli un cliente --</option>
-                {clients.map(c => (
-                  <option key={c.id} value={c.id}>
-                    {c.name} {c.allergies ? `(⚠️ Allergie: ${c.allergies})` : ''}
-                  </option>
-                ))}
-              </select>
+                onChange={setClientId}
+                options={clientOptions}
+                placeholder="-- Scegli un cliente --"
+              />
             </div>
 
             <div className="form-group">
@@ -143,58 +161,37 @@ export default function AppointmentModal({
           </div>
 
           <div className="form-group">
-            <label className="form-label">Servizio Trattamento</label>
-            <select 
-              className="form-select"
+            <label htmlFor="service-select" className="form-label">Servizio Trattamento</label>
+            <CustomSelect
+              id="service-select"
               value={serviceId}
-              onChange={(e) => setServiceId(e.target.value)}
-              required
-            >
-              <option value="">-- Scegli un servizio --</option>
-              {services.map(s => (
-                <option key={s.id} value={s.id}>
-                  {s.name} - €{s.price} ({s.duration} min + {s.buffer} min buffer)
-                </option>
-              ))}
-            </select>
+              onChange={setServiceId}
+              options={serviceOptions}
+              placeholder="-- Scegli un servizio --"
+            />
           </div>
 
           <div className="form-row-2col">
             <div className="form-group">
-              <label className="form-label">Estetista Operatrice</label>
-              <select 
-                className="form-select"
+              <label htmlFor="operator-select" className="form-label">Estetista Operatrice</label>
+              <CustomSelect
+                id="operator-select"
                 value={operatorId}
-                onChange={(e) => setOperatorId(e.target.value)}
-                required
-              >
-                <option value="">-- Scegli operatrice --</option>
-                {staff.map(st => (
-                  <option key={st.id} value={st.id}>{st.name} ({st.role})</option>
-                ))}
-              </select>
+                onChange={setOperatorId}
+                options={operatorOptions}
+                placeholder="-- Scegli operatrice --"
+              />
             </div>
 
             <div className="form-group">
-              <label className="form-label">Orario Inizio</label>
-              <select
-                className="form-select"
+              <label htmlFor="time-select" className="form-label">Orario Inizio</label>
+              <CustomSelect
+                id="time-select"
                 value={time}
-                onChange={(e) => setTime(e.target.value)}
-                required
-              >
-                {Array.from({ length: (endHour - startHour) * 4 }).map((_, i) => {
-                  const mins = startHour * 60 + i * 15;
-                  const hr = Math.floor(mins / 60);
-                  const mn = mins % 60;
-                  const timeString = `${String(hr).padStart(2, '0')}:${String(mn).padStart(2, '0')}`;
-                  return (
-                    <option key={timeString} value={timeString}>
-                      {timeString}
-                    </option>
-                  );
-                })}
-              </select>
+                onChange={setTime}
+                options={timeOptions}
+                placeholder="-- Scegli orario --"
+              />
             </div>
           </div>
 
