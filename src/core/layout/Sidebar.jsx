@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { LayoutDashboard, Calendar, Users, ShoppingBag, Sparkles, Settings, LogOut } from 'lucide-react';
 import { useSalon } from '../context/SalonContext';
@@ -38,10 +38,9 @@ export default function Sidebar() {
       </div>
 
       <div className="salon-status-card">
-        <div className="status-dot" style={{ backgroundColor: salon ? (salon.isOpen ? 'var(--success)' : 'var(--danger)') : 'var(--text-muted)' }}></div>
+        <div className="status-dot" style={{ backgroundColor: 'var(--success)' }}></div>
         <div className="status-info">
           <p className="salon-title">{salon ? salon.name : 'Caricamento...'}</p>
-          <p className="salon-subtitle">{salon ? (salon.isOpen ? 'Salone Aperto' : 'Salone Chiuso') : '...'}</p>
         </div>
       </div>
 

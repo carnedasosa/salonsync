@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Lock, Mail, CreditCard, ArrowRight, Loader } from 'lucide-react';
+import { Lock, Mail, CreditCard, ArrowRight, Loader, ArrowLeft } from 'lucide-react';
 import { Navigate, useSearchParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../../core/supabaseClient';
 import { useAuth } from '../../core/context/AuthContext';
@@ -8,7 +8,7 @@ import './PaywallPage.css';
 export default function PaywallPage() {
   const [loading, setLoading] = useState(false);
   const [verifying, setVerifying] = useState(false);
-  const { session, profile, refreshProfile } = useAuth();
+  const { session, profile, refreshProfile, logout } = useAuth();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -70,6 +70,16 @@ export default function PaywallPage() {
 
   return (
     <div className="paywall-container">
+      <button 
+        type="button" 
+        onClick={logout} 
+        className="paywall-btn-back"
+        title="Torna al Login"
+      >
+        <ArrowLeft size={18} aria-hidden="true" />
+        <span>Torna al Login</span>
+      </button>
+
       <div className="glass-card paywall-card animate-fade-in">
         <div className="paywall-icon-wrapper">
           <Lock size={40} aria-hidden="true" />
