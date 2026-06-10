@@ -31,29 +31,42 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const initAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        await fetchProfile(session.user.id);
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) throw error;
+        setSession(session);
+        setUser(session?.user ?? null);
+        if (session?.user) {
+          await fetchProfile(session.user.id);
+        }
+      } catch (err) {
+        console.error("Error during initAuth:", err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     initAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (_event === 'SIGNED_OUT') {
+        // Evitiamo race condition scollegando subito l'utente
+        setSession(null);
+        setUser(null);
+        setProfile(null);
+        
+        // Pulizia della cache React Query per prevenire cache leak
+        await queryClient.cancelQueries();
         queryClient.clear();
-        setProfile(null);
-      }
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        await fetchProfile(session.user.id);
       } else {
-        setProfile(null);
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          await fetchProfile(session.user.id);
+        } else {
+          setProfile(null);
+        }
       }
       setLoading(false);
     });
@@ -74,9 +87,21 @@ export function AuthProvider({ children }) {
   };
 
   const logout = async () => {
-    queryClient.clear();
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        throw error;
+      }
+    } catch (err) {
+      console.error("Error during supabase.auth.signOut:", err);
+      // Pulizia di emergenza per errori di rete, in modo da forzare il logout locale
+      setSession(null);
+      setUser(null);
+      setProfile(null);
+      await queryClient.cancelQueries();
+      queryClient.clear();
+      throw err;
+    }
   };
 
   const refreshProfile = async () => {

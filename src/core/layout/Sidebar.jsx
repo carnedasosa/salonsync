@@ -1,7 +1,8 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Calendar, Users, ShoppingBag, Sparkles, Settings } from 'lucide-react';
+import { LayoutDashboard, Calendar, Users, ShoppingBag, Sparkles, Settings, LogOut } from 'lucide-react';
 import { useSalon } from '../context/SalonContext';
+import { useAuth } from '../context/AuthContext';
 
 // Defined at module scope — avoids recreation on every render
 const MENU_ITEMS = [
@@ -14,6 +15,17 @@ const MENU_ITEMS = [
 
 export default function Sidebar() {
   const { salon } = useSalon();
+  const { user, profile, logout } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
+  const displayName = profile?.full_name || user?.email || 'Utente';
 
   return (
     <aside className="sidebar">
@@ -52,6 +64,24 @@ export default function Sidebar() {
           );
         })}
       </nav>
+
+      <div className="sidebar-profile">
+        <div className="profile-info">
+          <div className="profile-avatar">
+            {displayName.charAt(0).toUpperCase()}
+          </div>
+          <span className="profile-name">{displayName}</span>
+        </div>
+        <button 
+          type="button" 
+          className="logout-button" 
+          onClick={handleLogout}
+          aria-label="Logout"
+          title="Logout"
+        >
+          <LogOut size={18} aria-hidden="true" />
+        </button>
+      </div>
 
       <div className="sidebar-footer">
         <p className="footer-version">salonSync v1.0.0</p>
@@ -194,9 +224,68 @@ export default function Sidebar() {
           background-color: var(--accent-primary);
           border-radius: var(--radius-sm) 0 0 var(--radius-sm);
         }
+        
+        .sidebar-profile {
+          margin-top: auto;
+          margin-bottom: 1rem;
+          padding: 0.85rem;
+          background: rgba(255, 255, 255, 0.6);
+          border: 1px solid var(--border-glass);
+          border-radius: var(--radius-md);
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+
+        .profile-info {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          overflow: hidden;
+        }
+
+        .profile-avatar {
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+          color: white;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 600;
+          font-size: 0.9rem;
+          flex-shrink: 0;
+        }
+
+        .profile-name {
+          font-size: 0.85rem;
+          font-weight: 600;
+          color: var(--text-main);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .logout-button {
+          background: transparent;
+          border: none;
+          color: var(--text-muted);
+          cursor: pointer;
+          padding: 0.5rem;
+          border-radius: var(--radius-sm);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: var(--transition);
+        }
+
+        .logout-button:hover {
+          color: var(--danger);
+          background: rgba(239, 68, 68, 0.1);
+        }
 
         .sidebar-footer {
-          margin-top: auto;
           border-top: 1px solid var(--border-glass);
           padding-top: 1rem;
           font-size: 0.7rem;
@@ -221,7 +310,7 @@ export default function Sidebar() {
             padding: 2rem 0.5rem;
             align-items: center;
           }
-          .brand-name, .salon-status-card, .nav-label, .sidebar-footer, .nav-active-indicator {
+          .brand-name, .salon-status-card, .nav-label, .sidebar-footer, .nav-active-indicator, .profile-name {
             display: none;
           }
           .sidebar-brand {
@@ -232,6 +321,14 @@ export default function Sidebar() {
           .nav-item {
             justify-content: center;
             padding: 1rem;
+          }
+          .sidebar-profile {
+            flex-direction: column;
+            gap: 0.75rem;
+            padding: 0.5rem;
+          }
+          .profile-info {
+            justify-content: center;
           }
         }
 
@@ -248,6 +345,7 @@ export default function Sidebar() {
             align-items: center;
             border-right: none;
             border-bottom: 1px solid var(--border-glass);
+            z-index: 100;
           }
           .sidebar-brand {
             margin-bottom: 0;
@@ -259,12 +357,28 @@ export default function Sidebar() {
             flex-direction: row;
             gap: 0.25rem;
             flex: 0;
+            margin-right: 1rem;
           }
           .nav-item {
             padding: 0.5rem;
           }
           .nav-label {
             display: none;
+          }
+          .sidebar-profile {
+            margin: 0;
+            padding: 0;
+            border: none;
+            background: transparent;
+            flex-direction: row;
+          }
+          .profile-avatar {
+            width: 28px;
+            height: 28px;
+            font-size: 0.8rem;
+          }
+          .logout-button {
+            padding: 0.25rem;
           }
         }
       `}</style>

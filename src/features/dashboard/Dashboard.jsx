@@ -1,6 +1,7 @@
 import React from 'react';
 import { PlusCircle, UserPlus } from 'lucide-react';
 import { getTodayDateString } from '../../core/data/constants';
+import { useAuth } from '../../core/context/AuthContext';
 import { useDashboardStats } from './hooks/useDashboardStats';
 import KpiGrid from './components/KpiGrid';
 import AppointmentsTimeline from './components/AppointmentsTimeline';
@@ -13,6 +14,7 @@ export default function Dashboard({
   onUpdateAppointmentStatus,
 }) {
   const { openModal } = useModal();
+  const { profile, user } = useAuth();
   const {
     todayAppointments,
     completedToday,
@@ -32,20 +34,22 @@ export default function Dashboard({
   }).format(new Date());
   const displayDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
 
+  const displayName = profile?.full_name || user?.email || 'Utente';
+
   return (
     <div className="dashboard-wrapper animate-fade-in">
       <header className="dashboard-header">
         <div>
-          <h1 className="gradient-text">Ciao, Aurora 👋</h1>
+          <h1 className="gradient-text">Ciao, {displayName} 👋</h1>
           <p className="subtitle">Ecco come sta andando il tuo salone oggi, {displayDate}.</p>
         </div>
         <div className="quick-actions">
-          <button className="btn btn-primary" onClick={() => openModal('NEW_APPOINTMENT')}>
-            <PlusCircle size={18} />
+          <button type="button" className="btn btn-primary" onClick={() => openModal('NEW_APPOINTMENT')}>
+            <PlusCircle size={18} aria-hidden="true" />
             <span>Nuovo Appuntamento</span>
           </button>
-          <button className="btn btn-secondary" onClick={() => openModal('NEW_CLIENT')}>
-            <UserPlus size={18} />
+          <button type="button" className="btn btn-secondary" onClick={() => openModal('NEW_CLIENT')}>
+            <UserPlus size={18} aria-hidden="true" />
             <span>Nuovo Cliente</span>
           </button>
         </div>
