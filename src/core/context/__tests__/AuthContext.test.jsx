@@ -11,6 +11,8 @@ vi.mock('../../supabaseClient', () => ({
       getSession: vi.fn(),
       onAuthStateChange: vi.fn(),
       signOut: vi.fn(),
+      signInWithPassword: vi.fn(),
+      signUp: vi.fn(),
     },
     from: vi.fn(),
   },
@@ -110,5 +112,39 @@ describe('AuthContext', () => {
 
     expect(queryClient.cancelQueries).toHaveBeenCalled();
     expect(queryClient.clear).toHaveBeenCalled();
+  });
+
+  it('calls supabase.auth.signInWithPassword on login', async () => {
+    supabase.auth.signInWithPassword.mockResolvedValue({ data: { user: { id: '1' } }, error: null });
+    const { result } = renderHook(() => useAuth(), { wrapper });
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    let data;
+    await act(async () => {
+      data = await result.current.login('test@test.com', 'password');
+    });
+    
+    expect(supabase.auth.signInWithPassword).toHaveBeenCalledWith({ email: 'test@test.com', password: 'password' });
+    expect(data).toEqual({ user: { id: '1' } });
+  });
+
+  it('calls supabase.auth.signUp with fullName in options on signup', async () => {
+    supabase.auth.signUp.mockResolvedValue({ data: { user: { id: '1' } }, error: null });
+    const { result } = renderHook(() => useAuth(), { wrapper });
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    let data;
+    await act(async () => {
+      data = await result.current.signup('test@test.com', 'password', 'Test User');
+    });
+    
+    expect(supabase.auth.signUp).toHaveBeenCalledWith({
+      email: 'test@test.com',
+      password: 'password',
+      options: { data: { full_name: 'Test User' } }
+    });
+    expect(data).toEqual({ user: { id: '1' } });
   });
 });

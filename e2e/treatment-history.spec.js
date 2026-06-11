@@ -1,7 +1,9 @@
 import { test, expect } from '@playwright/test';
+import { loginE2E } from './loginHelper.js';
 
 test.describe('Storico Trattamenti E2E', () => {
   test('dovrebbe completare un appuntamento e aggiornare lo storico', async ({ page }) => {
+    await loginE2E(page);
     // Come sopra, saltiamo l'onboarding
     await page.route('**/rest/v1/salon*', async route => {
       if (route.request().method() === 'GET') {

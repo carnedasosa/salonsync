@@ -32,7 +32,7 @@ const CustomSelect = ({ id, value, onChange, options, placeholder = "Seleziona u
       // Auto-scroll to selected option
       if (index !== -1) {
         const optionEl = document.getElementById(`${componentId}-option-${index}`);
-        if (optionEl) {
+        if (optionEl && typeof optionEl.scrollIntoView === 'function') {
           optionEl.scrollIntoView({ block: 'nearest' });
         }
       }
@@ -61,7 +61,7 @@ const CustomSelect = ({ id, value, onChange, options, placeholder = "Seleziona u
         setActiveIndex((prev) => {
           const nextIndex = (prev + 1) % options.length;
           const optionEl = document.getElementById(`${componentId}-option-${nextIndex}`);
-          if (optionEl) optionEl.scrollIntoView({ block: 'nearest' });
+          if (optionEl && typeof optionEl.scrollIntoView === 'function') optionEl.scrollIntoView({ block: 'nearest' });
           return nextIndex;
         });
         break;
@@ -70,7 +70,7 @@ const CustomSelect = ({ id, value, onChange, options, placeholder = "Seleziona u
         setActiveIndex((prev) => {
           const nextIndex = (prev - 1 + options.length) % options.length;
           const optionEl = document.getElementById(`${componentId}-option-${nextIndex}`);
-          if (optionEl) optionEl.scrollIntoView({ block: 'nearest' });
+          if (optionEl && typeof optionEl.scrollIntoView === 'function') optionEl.scrollIntoView({ block: 'nearest' });
           return nextIndex;
         });
         break;
@@ -113,6 +113,7 @@ const CustomSelect = ({ id, value, onChange, options, placeholder = "Seleziona u
           {selectedOption ? selectedOption.label : placeholder}
         </span>
         <svg
+          aria-hidden="true"
           className={`${styles.chevron} ${isOpen ? styles.chevronUp : ''}`}
           xmlns="http://www.w3.org/2000/svg"
           width="20"

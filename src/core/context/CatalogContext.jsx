@@ -7,15 +7,18 @@ import React, { createContext, useContext } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../supabaseClient';
 import { mockServices, mockProducts } from '../data/mockData';
+import { useAuth } from './AuthContext';
 
 const CatalogContext = createContext(null);
 
 export function CatalogProvider({ children }) {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
 
   // Fetch Services
   const { data: services, isLoading: servicesLoading, error: servicesError } = useQuery({
-    queryKey: ['services'],
+    queryKey: ['services', user?.id],
+    enabled: !!user?.id,
     queryFn: async () => {
       const { data, error } = await supabase.from('services').select('*').order('name');
       if (error) throw error;
@@ -25,7 +28,8 @@ export function CatalogProvider({ children }) {
 
   // Fetch Products
   const { data: products, isLoading: productsLoading, error: productsError } = useQuery({
-    queryKey: ['products'],
+    queryKey: ['products', user?.id],
+    enabled: !!user?.id,
     queryFn: async () => {
       const { data, error } = await supabase.from('products').select('*').order('name');
       if (error) throw error;
@@ -39,7 +43,7 @@ export function CatalogProvider({ children }) {
       const { error } = await supabase.from('services').insert([serviceData]);
       if (error) throw error;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['services'] })
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['services', user?.id] })
   });
 
   const addProductMutation = useMutation({
@@ -48,12 +52,12 @@ export function CatalogProvider({ children }) {
       const { error } = await supabase.from('products').insert([productData]);
       if (error) throw error;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['products'] })
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['products', user?.id] })
   });
 
   const updateStockMutation = useMutation({
     mutationFn: async ({ prodId, amount }) => {
-      const currentProducts = queryClient.getQueryData(['products']);
+      const currentProducts = queryClient.getQueryData(['products', user?.id]);
       const product = currentProducts?.find(p => p.id === prodId);
       if (!product) throw new Error("Product not found");
       
@@ -61,7 +65,7 @@ export function CatalogProvider({ children }) {
       const { error } = await supabase.from('products').update({ stock: newStock }).eq('id', prodId);
       if (error) throw error;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['products'] })
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['products', user?.id] })
   });
 
   const addService = (newService) => addServiceMutation.mutateAsync(newService);

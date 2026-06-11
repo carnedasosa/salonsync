@@ -34,7 +34,7 @@ export default function Dashboard({
   }).format(new Date());
   const displayDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
 
-  const displayName = profile?.full_name || user?.email || 'Utente';
+  const displayName = profile?.full_name || user?.user_metadata?.full_name || user?.email || 'Utente';
 
   return (
     <div className="dashboard-wrapper animate-fade-in">

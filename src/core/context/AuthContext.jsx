@@ -80,8 +80,16 @@ export function AuthProvider({ children }) {
     return data;
   };
 
-  const signup = async (email, password) => {
-    const { data, error } = await supabase.auth.signUp({ email, password });
+  const signup = async (email, password, fullName) => {
+    const { data, error } = await supabase.auth.signUp({ 
+      email, 
+      password,
+      options: {
+        data: {
+          full_name: fullName,
+        }
+      }
+    });
     if (error) throw error;
     return data;
   };

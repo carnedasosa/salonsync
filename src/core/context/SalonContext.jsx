@@ -7,15 +7,18 @@ import React, { createContext, useContext } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../supabaseClient';
 import { mockSalon, mockStaff } from '../data/mockSalon';
+import { useAuth } from './AuthContext';
 
 const SalonContext = createContext(null);
 
 export function SalonProvider({ children }) {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
 
   // Fetch Salon Settings
   const { data: salon, isLoading: salonLoading, error: salonError } = useQuery({
-    queryKey: ['salon'],
+    queryKey: ['salon', user?.id],
+    enabled: !!user?.id,
     queryFn: async () => {
       const { data, error } = await supabase.from('salon_settings').select('*').limit(1).maybeSingle();
       if (error) {
@@ -28,7 +31,8 @@ export function SalonProvider({ children }) {
 
   // Fetch Staff
   const { data: staff, isLoading: staffLoading, error: staffError } = useQuery({
-    queryKey: ['staff'],
+    queryKey: ['staff', user?.id],
+    enabled: !!user?.id,
     queryFn: async () => {
       const { data, error } = await supabase.from('staff').select('*');
       if (error) {
@@ -49,7 +53,7 @@ export function SalonProvider({ children }) {
         if (error) throw error;
       }
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['salon'] })
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['salon', user?.id] })
   });
 
   const addStaffMutation = useMutation({
@@ -59,7 +63,7 @@ export function SalonProvider({ children }) {
       const { error } = await supabase.from('staff').insert([staffData]);
       if (error) throw error;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['staff'] })
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['staff', user?.id] })
   });
 
   const deleteStaffMutation = useMutation({
@@ -67,7 +71,7 @@ export function SalonProvider({ children }) {
       const { error } = await supabase.from('staff').delete().eq('id', staffId);
       if (error) throw error;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['staff'] })
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['staff', user?.id] })
   });
 
   // Funzioni helper per la retrocompatibilità dell'interfaccia

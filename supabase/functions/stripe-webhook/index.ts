@@ -1,4 +1,4 @@
-﻿import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.14.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
@@ -18,11 +18,17 @@ serve(async (req) => {
   const body = await req.text();
   let event;
 
+  const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
+  if (!webhookSecret) {
+    console.error('Missing STRIPE_WEBHOOK_SECRET');
+    return new Response(JSON.stringify({ error: 'Webhook secret is not configured' }), { status: 500 });
+  }
+
   try {
     event = await stripe.webhooks.constructEventAsync(
       body,
       signature,
-      Deno.env.get('STRIPE_WEBHOOK_SECRET') || '',
+      webhookSecret,
       undefined,
       cryptoProvider
     );

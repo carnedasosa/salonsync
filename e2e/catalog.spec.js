@@ -1,17 +1,17 @@
 import { test, expect } from '@playwright/test';
+import { loginE2E } from './loginHelper.js';
 
 test.describe('Catalog E2E', () => {
   test('eliminazione di un servizio dal listino', async ({ page }) => {
-    // Navigare sull'app e andare su Listino & Scorte
-    await page.goto('http://localhost:5173');
-    await page.click('text=Listino & Scorte');
+    await loginE2E(page);
+    await page.click('text=Catalogo');
 
     // Verificare che la pagina Listino sia caricata
-    await expect(page.locator('text=Nuovo Trattamento')).toBeVisible();
+    await expect(page.locator('text=Nuovo Servizio')).toBeVisible();
 
     // Simulare l'inserimento di un "Servizio Test"
-    await page.click('text=Nuovo Trattamento');
-    await expect(page.locator('text=Aggiungi Nuovo Trattamento a Listino')).toBeVisible();
+    await page.click('text=Nuovo Servizio');
+    await expect(page.locator('text=Nuovo Servizio')).toBeVisible();
 
     // Compilare i campi
     await page.fill('input[placeholder="es. Laminazione Ciglia Superiori"]', 'Servizio Test');
@@ -21,7 +21,7 @@ test.describe('Catalog E2E', () => {
     await page.selectOption('select.form-select', 'Viso');
 
     // Confermare l'aggiunta
-    await page.click('button:has-text("Aggiungi a Listino")');
+    await page.click('button:has-text("Salva")');
 
     // Verificare che il modal sia chiuso e il servizio appaia in tabella
     await expect(page.locator('text=Servizio Test')).toBeVisible();

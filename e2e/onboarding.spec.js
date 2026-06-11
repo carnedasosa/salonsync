@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { loginE2E } from './loginHelper.js';
 
 test.describe('Onboarding Flow', () => {
   test('should display onboarding when no salon exists and submit form', async ({ page }) => {
@@ -22,10 +23,10 @@ test.describe('Onboarding Flow', () => {
       }
     });
 
-    await page.goto('/');
+    await loginE2E(page);
 
     // Verifica che appaia l'onboarding
-    await expect(page.locator('text=Benvenuta su salonSync')).toBeVisible();
+    await expect(page.locator('h1')).toContainText('Benvenuta su salonSync');
 
     // Compila il form
     await page.fill('input[placeholder="Es. Centro Estetico Aurora"]', 'Centro Estetico Aurora');

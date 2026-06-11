@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
+import { loginE2E } from './loginHelper.js';
 
 test.describe('Appuntamenti E2E', () => {
   test('dovrebbe poter aprire il modale per un nuovo appuntamento', async ({ page }) => {
-    // Naviga all'applicazione (assumendo che giri su localhost:5173 di default in dev o preview)
-    await page.goto('http://localhost:5173');
+    await loginE2E(page);
 
     // Clicca sul tab Calendario nella Sidebar
     await page.click('text=Calendario');

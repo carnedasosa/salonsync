@@ -7,15 +7,18 @@ import React, { createContext, useContext } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../supabaseClient';
 import { mockClients } from '../data/mockData';
+import { useAuth } from './AuthContext';
 
 const ClientsContext = createContext(null);
 
 export function ClientsProvider({ children }) {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
 
   // Fetch Clients with their treatment history
   const { data: clients, isLoading: clientsLoading, error: clientsError } = useQuery({
-    queryKey: ['clients'],
+    queryKey: ['clients', user?.id],
+    enabled: !!user?.id,
     queryFn: async () => {
       const { data, error } = await supabase
         .from('clients')
@@ -44,7 +47,7 @@ export function ClientsProvider({ children }) {
       const { error } = await supabase.from('clients').insert([clientData]);
       if (error) throw error;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['clients'] })
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['clients', user?.id] })
   });
 
   const addTreatmentRecordMutation = useMutation({
@@ -56,7 +59,7 @@ export function ClientsProvider({ children }) {
       }]);
       if (error) throw error;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['clients'] })
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['clients', user?.id] })
   });
 
   const deleteClientMutation = useMutation({
@@ -66,13 +69,13 @@ export function ClientsProvider({ children }) {
       return clientId;
     },
     onSuccess: (deletedId) => {
-      queryClient.setQueryData(['clients'], (old) => {
+      queryClient.setQueryData(['clients', user?.id], (old) => {
         return old ? old.filter(c => c.id !== deletedId) : [];
       });
-      queryClient.invalidateQueries({ queryKey: ['clients'] });
+      queryClient.invalidateQueries({ queryKey: ['clients', user?.id] });
       // Invalidate appointments/revenue too, since cascade delete affects them
-      queryClient.invalidateQueries({ queryKey: ['appointments'] });
-      queryClient.invalidateQueries({ queryKey: ['revenueHistory'] });
+      queryClient.invalidateQueries({ queryKey: ['appointments', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['revenueHistory', user?.id] });
     }
   });
 

@@ -6,15 +6,18 @@
 import React, { createContext, useContext } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../supabaseClient';
+import { useAuth } from './AuthContext';
 
 const AppointmentsContext = createContext(null);
 
 export function AppointmentsProvider({ children }) {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
 
   // Fetch Appointments
   const { data: appointments, isLoading: appointmentsLoading, error: appointmentsError } = useQuery({
-    queryKey: ['appointments'],
+    queryKey: ['appointments', user?.id],
+    enabled: !!user?.id,
     queryFn: async () => {
       const { data, error } = await supabase.from('appointments').select('*').order('date', { ascending: false });
       if (error) throw error;
@@ -24,7 +27,8 @@ export function AppointmentsProvider({ children }) {
 
   // Fetch Revenue History da View SQL Supabase
   const { data: rawRevenueHistory, isLoading: revenueLoading } = useQuery({
-    queryKey: ['revenueHistory'],
+    queryKey: ['revenueHistory', user?.id],
+    enabled: !!user?.id,
     queryFn: async () => {
       const { data, error } = await supabase.from('monthly_revenue').select('*');
       if (error) throw error;
@@ -56,10 +60,10 @@ export function AppointmentsProvider({ children }) {
       return data[0];
     },
     onSuccess: (insertedApp) => {
-      queryClient.setQueryData(['appointments'], (old) => {
+      queryClient.setQueryData(['appointments', user?.id], (old) => {
         return old ? [insertedApp, ...old] : [insertedApp];
       });
-      queryClient.invalidateQueries({ queryKey: ['revenueHistory'] });
+      queryClient.invalidateQueries({ queryKey: ['revenueHistory', user?.id] });
     }
   });
 
@@ -70,10 +74,10 @@ export function AppointmentsProvider({ children }) {
       return data[0];
     },
     onSuccess: (updatedApp) => {
-      queryClient.setQueryData(['appointments'], (old) => {
+      queryClient.setQueryData(['appointments', user?.id], (old) => {
         return old ? old.map(app => app.id === updatedApp.id ? updatedApp : app) : [];
       });
-      queryClient.invalidateQueries({ queryKey: ['revenueHistory'] });
+      queryClient.invalidateQueries({ queryKey: ['revenueHistory', user?.id] });
     }
   });
 

@@ -43,7 +43,7 @@ export default function AuthPage() {
       if (isLogin) {
         await login(email, password);
       } else {
-        await signup(email, password);
+        await signup(email, password, name);
       }
       
       // Success, redirect

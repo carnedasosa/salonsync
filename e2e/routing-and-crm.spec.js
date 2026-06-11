@@ -1,7 +1,10 @@
 import { test, expect } from '@playwright/test';
+import { loginE2E } from './loginHelper.js';
 
 test.describe('Routing e CRM E2E', () => {
   test('dovrebbe navigare dalla dashboard al CRM e aprire il modale nuovo cliente', async ({ page }) => {
+    await loginE2E(page);
+    
     // Intercetta la richiesta a Supabase per assicurare che ci sia un salone (salta l'onboarding)
     await page.route('**/rest/v1/salon*', async route => {
       if (route.request().method() === 'GET') {
@@ -18,7 +21,7 @@ test.describe('Routing e CRM E2E', () => {
     await page.goto('/');
 
     // Attendi che l'app sia caricata e che siamo sulla Dashboard (default)
-    await expect(page.locator('text=Ciao, Aurora')).toBeVisible();
+    await expect(page.locator('.dashboard-grid')).toBeVisible();
 
     // Clicca sul tab CRM (Schede Clienti) nella Sidebar
     await page.click('text=Schede Clienti');
